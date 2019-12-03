@@ -12,7 +12,7 @@ class Boards(TemplateView):
     def get(self, request):
         boards = Board.objects.filter(user=request.user)
         return render(request, 'app/index.html', {'boards' : boards})
-    
+
 
 class AddBoard(TemplateView):
     """
@@ -20,10 +20,10 @@ class AddBoard(TemplateView):
     """
 
     form = BoardForm
-    template_name = 'app/create_board.html'
+    link = 'app/create_board.html'
     def get(self,request):
         form = self.form()
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.link, {'form': form})
 
     def post(self, request):
         # create a form instance and populate it with data from the request:
@@ -37,4 +37,4 @@ class AddBoard(TemplateView):
             return HttpResponseRedirect('/')
         else:
             form = self.form()
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.link, {'form': form})
