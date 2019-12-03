@@ -14,5 +14,6 @@ class TrelloList(models.Model):
 
 class TrelloCard(models.Model):
     title = models.CharField(max_length=30)
+    content = models.CharField(max_length=200)
     date_created = models.DateField(default=timezone.now)
     trello_list = models.ForeignKey(TrelloList, on_delete=models.CASCADE)
