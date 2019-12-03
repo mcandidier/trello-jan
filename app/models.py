@@ -1,10 +1,10 @@
 from django.db import models
-from django.conf import settings
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 class Board(models.Model):
     title = models.CharField(max_length=30)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date_created = models.DateField(default=timezone.now)
 
 class BoardList(models.Model):
