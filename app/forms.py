@@ -1,4 +1,7 @@
 from django import forms
+from .models import Board, Card, BoardList
 
-class BoardForm(forms.Form):
-    title = forms.CharField(label='Title', max_length=100)
+class BoardForm(forms.ModelForm):
+    class Meta:
+        model = Board
+        fields = ('title',)
