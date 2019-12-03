@@ -12,7 +12,14 @@
 </head>
 <body>
     <div class="container">
+            <a class="btn btn-primary add-post-button" role="button" href="{% url 'board_new' %}" class="top-menu">Add Post</a>
+        {% block content %}
+        {% endblock %}
         Sample output..
+        <p>Boards:</p>
+        {% for board in boards %}
+            <p>{{ board.title }}</p>
+        {% endfor %}
     </div>
     <!-- js -->
     <script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
