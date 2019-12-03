@@ -13,27 +13,28 @@ class Boards(TemplateView):
         boards = Board.objects.filter(user=request.user)
         return render(request, 'app/index.html', {'boards' : boards})
     
-    
 
 class AddBoard(TemplateView):
+    """
+    Add Board
+    """
 
     form = BoardForm
+    template_name = 'app/create_board.html'
     def get(self,request):
         form = self.form()
-        return render(request, 'app/create_board.html', {'form': form})
+        return render(request, self.template_name, {'form': form})
 
     def post(self, request):
-        # if this is a POST request we need to process the form data
-        if request.method == 'POST':
-            # create a form instance and populate it with data from the request:
-            form = BoardForm(request.POST)
-            # check whether it's valid:
-            if form.is_valid():
-                form = form.save(commit=False)
-                form.user = request.user
-                form.save()
-                # redirect to a new URL:
-                return HttpResponseRedirect('/')
+        # create a form instance and populate it with data from the request:
+        form = self.form(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.user = request.user
+            form.save()
+            # redirect to a new URL:
+            return HttpResponseRedirect('/')
         else:
             form = self.form()
-        return render(request, 'app/index.html', {'form': form})
+        return render(request, self.template_name, {'form': form})

@@ -1,9 +1,7 @@
 *.pyc
 *~
 /.vscode
-__pycache__
-urls.cpython-38.pyc
-views.cpython-38.pyc
+__pycache__/
 venv
 db.sqlite3
 .DS_Store
