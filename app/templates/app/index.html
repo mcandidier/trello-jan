@@ -12,13 +12,11 @@
 </head>
 <body>
     <div class="container">
-            <a class="btn btn-primary add-post-button" role="button" href="{% url 'board_new' %}" class="top-menu">Add Post</a>
+            <a class="btn btn-primary add-post-button" role="button" href="{% url 'board_new' %}" class="top-menu">Add Board</a>
         {% block content %}
         {% endblock %}
-        Sample output..
-        <p>Boards:</p>
         {% for board in boards %}
-            <p>{{ board.title }}</p>
+            <p><a href="{% url 'board_view' id=board.id %}">{{ board.title }}</a></p>
         {% endfor %}
     </div>
     <!-- js -->
