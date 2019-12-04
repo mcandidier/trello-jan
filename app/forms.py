@@ -7,8 +7,16 @@ class BoardForm(forms.ModelForm):
         model = Board
         fields = ('title',)
 
-class CardForm(forms.ModelForm):
+
+class ListForm(forms.ModelForm):
 
     class Meta:
         model = BoardList
+        fields = ('title',)
+
+
+class CardForm(forms.ModelForm):
+
+    class Meta:
+        model = Card
         fields = ('title',)
