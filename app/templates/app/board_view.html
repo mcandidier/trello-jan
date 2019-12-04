@@ -1,0 +1,7 @@
+yahooo! board_view.html
+{{ board.title }}
+{{ board.id }}
+<a class="btn btn-primary add-post-button" role="button" href="{% url 'list_new' %}" class="top-menu">Add list</a>
+{% for list in board_list %}
+<p>{{list.title}}</p>
+{% endfor %}
