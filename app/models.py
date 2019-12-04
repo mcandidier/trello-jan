@@ -5,6 +5,7 @@ from django.utils import timezone
 class Board(models.Model):
     title = models.CharField(max_length=30)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    activation = models.BooleanField(default=True)
     date_created = models.DateField(default=timezone.now)
 
 class BoardList(models.Model):
