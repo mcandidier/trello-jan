@@ -1,0 +1,12 @@
+{% extends 'app/index.html' %}
+<h1>adasd</h1>
+{% block content %}
+    <h2>Create List</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for list in list_view %}
+            {{list}}{{list.errors}}
+        {% endfor%}
+        <input name="next" type="submit" value="Submit">
+    </form>
+{% endblock %}
