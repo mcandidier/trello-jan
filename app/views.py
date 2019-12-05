@@ -1,4 +1,4 @@
-from .forms import BoardForm, ListForm
+from .forms import BoardForm, ListForm, CardForm
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -49,11 +49,18 @@ class BoardView(TemplateView):
     """
 
     template_name = 'app/board_view.html'
+    # query_boardList = BoardList.objects.all()
     def get(self, *args, **kwargs):
-        id = kwargs.get('id')
-        board = get_object_or_404(Board, id=id)
-        board_list = BoardList.objects.filter(board=id)
-        return render(self.request, self.template_name, {'board': board, 'board_list' : board_list})
+        board_id = kwargs.get('id')
+        # iterate board model
+        board = get_object_or_404(Board, id=board_id)
+        # iterate list model
+        board_list = BoardList.objects.filter(board=board_id)
+        # iterate cards model
+        q = board_list.values()[0].get('id')
+        card_query = Card.objects.filter(boardList = q)
+        # import pdb; pdb.set_trace()
+        return render(self.request, self.template_name, {'board': board, 'board_list' : board_list, 'card_views' : card_query})
 
 
 class AddList(TemplateView):
@@ -69,8 +76,8 @@ class AddList(TemplateView):
         return render(self.request, self.template_name, {'list_view': list_view})
 
     def post(self, *args, **kwargs):
-        id = kwargs.get('id')
-        board = Board.objects.get(id=id)
+        board_id = kwargs.get('id')
+        board = Board.objects.get(id=board_id)
         # create a form instance and populate it with data from the request:
         list_view = self.list_view(self.request.POST)
         # check whether it's valid:
@@ -79,5 +86,33 @@ class AddList(TemplateView):
             list_view.board = board
             list_view.save()
             # redirect to a new URL:
-            return redirect('board_view', id)
+            return redirect('board_view', board_id)
         return render(self.request, self.template_name, {'list_view': list_view})
+
+
+class AddCard(TemplateView):
+    """
+    Let the user add new list
+    """
+
+
+    card_list = CardForm
+    template_name = 'app/create_card.html'
+    template_name_post = 'board_view'
+    def get(self, *args, **kwargs):
+        card_list = self.card_list()
+        return render(self.request, self.template_name, {'form' : card_list})
+
+    def post(self, *args, **kwargs):
+        list_id = kwargs.get('id')
+        boardList = BoardList.objects.get(id=list_id)
+        # create a form instance and populate it with data from the request:
+        card_list = self.card_list(self.request.POST)
+        # check whether it's valid:
+        if card_list.is_valid():
+            card_list = card_list.save(commit=False)
+            card_list.boardList = boardList
+            card_list.save()
+            # redirect to a new URL:
+            return redirect(self.template_name_post, list_id)
+        return render(self.request, self.template_name_post, {'form': card_list})
