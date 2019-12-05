@@ -100,19 +100,19 @@ class AddCard(TemplateView):
     template_name = 'app/create_card.html'
     template_name_post = 'board_view'
     def get(self, *args, **kwargs):
-        card_list = self.card_list()
+        form = self.form()
         return render(self.request, self.template_name, {'form' : form})
 
     def post(self, *args, **kwargs):
         list_id = kwargs.get('id')
         boardList = BoardList.objects.get(id=list_id)
         # create a form instance and populate it with data from the request:
-        card_list = self.card_list(self.request.POST)
+        form = self.form(self.request.POST)
         # check whether it's valid:
-        if card_list.is_valid():
-            card_list = card_list.save(commit=False)
-            card_list.boardList = boardList
-            card_list.save()
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.boardList = boardList
+            form.save()
             # redirect to a new URL:
-            return redirect(self.template_name_post, list_id)
-        return render(self.request, self.template_name_post, {'form': card_list})
+            return redirect(self.template_name_post, boardList.board_id)
+        return render(self.request, self.template_name, {'form': form})
