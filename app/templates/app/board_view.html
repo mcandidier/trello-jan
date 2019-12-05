@@ -7,7 +7,18 @@
     {{ user.id }}
     <a class="btn btn-primary add-post-button" role="button" href="{% url 'list_new' board.id %}" class="top-menu">Add list</a>
         {% for list in board_list %}
-        <p>{{list.title}}</p>
+        <p>{{list.id}}</p><a class="btn btn-primary add-post-button" role="button" href="{% url 'card_new' list.id %}" class="top-menu">Add Card</a>
+        {% endfor %}
+        {% for card in card_views.all %}
+        <p>{{card.board}}</p>
+        <p>{{card.id}}</p>
+        {% endfor %}
+
+
+        {% for list in board_list %}
+            {% for card, x in list.card_views.all %}
+                {{card.id}} - {{ x.id }}
+            {% endfor%}
         {% endfor %}
 
     {% endblock %}
