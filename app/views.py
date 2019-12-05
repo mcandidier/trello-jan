@@ -96,12 +96,12 @@ class AddCard(TemplateView):
     """
 
 
-    card_list = CardForm
+    form = CardForm
     template_name = 'app/create_card.html'
     template_name_post = 'board_view'
     def get(self, *args, **kwargs):
         card_list = self.card_list()
-        return render(self.request, self.template_name, {'form' : card_list})
+        return render(self.request, self.template_name, {'form' : form})
 
     def post(self, *args, **kwargs):
         list_id = kwargs.get('id')
