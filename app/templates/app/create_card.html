@@ -1,0 +1,10 @@
+{% extends 'app/index.html' %}
+<h1>adasd</h1>
+{% block content %}
+    <h2>Create Card</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.title }}
+        <input name="next" type="submit" value="Submit">
+    </form>
+{% endblock %}
