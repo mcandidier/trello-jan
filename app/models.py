@@ -17,4 +17,4 @@ class Card(models.Model):
     title = models.CharField(max_length=30)
     content = models.CharField(max_length=200)
     date_created = models.DateField(default=timezone.now)
-    _list = models.ForeignKey(BoardList, on_delete=models.CASCADE)
+    boardList = models.ForeignKey(BoardList, on_delete=models.CASCADE, related_name = 'card')
