@@ -1,6 +1,5 @@
 from .forms import BoardForm, ListForm, CardForm
 from django.shortcuts import redirect
-from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
@@ -14,8 +13,9 @@ class Boards(TemplateView):
     """
     template_name = 'app/index.html'
     def get(self, request):
+        # select current user and activation
         boards = Board.objects.filter(user=request.user, activation=True)
-        return render(  request, self.template_name, {'boards' : boards})
+        return render(request, self.template_name, {'boards' : boards})
 
 
 class AddBoard(TemplateView):
@@ -114,3 +114,18 @@ class AddCard(TemplateView):
             # redirect to a board views:
             return redirect(self.template_name_post, boardList.board_id)
         return render(self.request, self.template_name, {'form': form})
+
+
+class MyAjax(TemplateView):
+    """ sample ajax page
+    """
+    template_name = 'app/card_ajax.html'
+
+    def get(self, *args, **kwargs):
+        list_id = kwargs.get('id')
+        greetings = 'Hello world'
+        context = {
+            'cards': Card.objects.filter(boardList__id=list_id),
+            'greetings': greetings
+        }
+        return render(self.request, self.template_name, context)
