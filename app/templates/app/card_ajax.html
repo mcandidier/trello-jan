@@ -1,0 +1,7 @@
+<ul>
+    {% for card in cards %}
+    <li>{{ card.title }}</li>
+    {% empty %}
+    <p>no cards</p>
+    {% endfor %}
+</ul>
