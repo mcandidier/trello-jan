@@ -1,24 +1,24 @@
-{% extends 'app/index.html' %}
+{% extends 'app/base.html' %}
 
-    {% block content %}
+{% block content %}
 
-    yahooo! board_view.html
-    {{ board.title }}
-    {{ user.id }}
-    <a class="btn btn-primary add-post-button" role="button" href="{% url 'list_new' board.id %}" class="top-menu">Add list</a>
-        {% for list in board_list %}
-        <p>{{list.id}}</p><a class="btn btn-primary add-post-button" role="button" href="{% url 'card_new' list.id %}" class="top-menu">Add Card</a>
-        {% endfor %}
-        {% for card in card_views.all %}
-        <p>{{card.board}}</p>
-        <p>{{card.id}}</p>
-        {% endfor %}
+<h2>{{ board.title }}</h2>
+<ul>
+    <li></li>
+</ul>
+<a class="btn btn btn-light add-post-button" role="button" href="{% url 'list_new' board.id %}" class="top-menu">Add list</a>
 
-
-        {% for list in board_list %}
-            {% for card, x in list.card_views.all %}
-                {{card.id}} - {{ x.id }}
-            {% endfor%}
-        {% endfor %}
-
-    {% endblock %}
+<ul class="li-right">
+    {% for list in board_list %}
+    <li>{{list.title}}</li>
+        {% for card in card_views %}
+            {% if list.id == card.boardList.id %}
+                <ul>
+                    <li>{{card.title}}</li>
+                </ul>
+                <a class="btn btn btn-light add-post-button" role="button" href="{% url 'card_new' list.id %}" class="top-menu">Add Card</a>
+            {% endif %}
+        {% endfor%}
+    {% endfor %}
+</ul>
+{% endblock %}
