@@ -10,15 +10,15 @@
 
 <ul class="li-right">
     {% for list in board_list %}
-    <li>{{list.title}}</li>
-        {% for card in card_views %}
+    <li class="board_lists" data-id="{{ list.id }}">{{list.title}}</li>
+        <!-- {% for card in card_views %}
             {% if list.id == card.boardList.id %}
                 <ul>
                     <li>{{card.title}}</li>
                 </ul>
-                <a class="btn btn btn-light add-post-button" role="button" href="{% url 'card_new' list.id %}" class="top-menu">Add Card</a>
             {% endif %}
-        {% endfor%}
+        {% endfor%} -->
+        <a class="btn btn btn-light add-post-button" role="button" href="{% url 'card_new' list.id %}" class="top-menu">Add Card</a>
     {% endfor %}
 </ul>
 {% endblock %}
