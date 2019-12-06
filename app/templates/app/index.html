@@ -1,26 +1,31 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <!-- css -->
-    <link rel="stylesheet" type="text/css" href="{% static 'dist/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'dist/css/style.css' %}">
-    <title>Trello</title>
-</head>
-<body>
+{% extends 'app/base.html' %}
+
+{% block content %}
+<section>
+    
     <div class="container">
-            <a class="btn btn-primary add-post-button" role="button" href="{% url 'board_new' %}" class="top-menu">Add Board</a>
-        {% block content %}
-        {% endblock %}
-        {% for board in boards %}
-            <p><a href="{% url 'board_view' id=board.id %}">{{ board.title }}</a></p>
-        {% endfor %}
+        <div class="row">
+            <div class="col-md-2">
+                <ul class="list-inline left-menu-li">
+                    <li ><button type="button" class="btn btn-light">Boards</button></li>
+                    <li ><button type="button" class="btn btn-light">Templates</button></li>
+                    <li ><button type="button" class="btn btn-light">Home</button></li>
+                </ul>
+            </div>
+
+            <div class="col-md-6"></div>
+
+            <div class="col-md-2">
+                <ul class="list-inline right-menu-li">
+                    {% for board in boards %}
+                    <li><a class="btn btn-light" href="{% url 'board_view' id=board.id %}">{{ board.title }}</a></li>
+                    {% endfor %}
+                </ul>
+                <ul class="list-inline right-menu-li">
+                    <li><a class="btn btn-light add-post-button" role="button" href="{% url 'board_new' %}" class="top-menu">Add Board</a></li>
+                </ul>
+            </div>
+        </div>
     </div>
-    <!-- js -->
-    <script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'dist/js/jquery-3.4.1.min.js' %}"></script>
-</body>
-</html>
+</section>
+{% endblock %}
