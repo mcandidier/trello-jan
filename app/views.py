@@ -15,7 +15,7 @@ class Boards(TemplateView):
     template_name = 'app/index.html'
     def get(self, request):
         boards = Board.objects.filter(user=request.user, activation=True)
-        return render(request, self.template_name, {'boards' : boards})
+        return render(  request, self.template_name, {'boards' : boards})
 
 
 class AddBoard(TemplateView):
@@ -34,13 +34,13 @@ class AddBoard(TemplateView):
         form = self.form(request.POST)
         # check whether it's valid:
         if form.is_valid():
+            # if it is valid, save(commit=False) gets you a model object, then you can add your extra data
             form = form.save(commit=False)
+            # add user data then save() it
             form.user = request.user
             form.save()
-            # redirect to a new URL:
+            # redirect to a home url:
             return HttpResponseRedirect('/')
-        else:
-            form = self.form()
         return render(request, self.template_name, {'form': form})
 
 class BoardView(TemplateView):
@@ -49,16 +49,14 @@ class BoardView(TemplateView):
     """
 
     template_name = 'app/board_view.html'
-    # query_boardList = BoardList.objects.all()
     def get(self, *args, **kwargs):
         board_id = kwargs.get('id')
-        # iterate board model
+        # iterate board model, if data doesnt exist it will move you to 404 page
         board = get_object_or_404(Board, id=board_id)
         # iterate list model
         board_list = BoardList.objects.filter(board=board_id)
-        # iterate cards model
-        q = board_list.values()[0].get('id')
-        card_query = Card.objects.filter(boardList = q)
+        # select list id
+        card_query = Card.objects.all()
         # import pdb; pdb.set_trace()
         return render(self.request, self.template_name, {'board': board, 'board_list' : board_list, 'card_views' : card_query})
 
@@ -85,7 +83,7 @@ class AddList(TemplateView):
             list_view = list_view.save(commit=False)
             list_view.board = board
             list_view.save()
-            # redirect to a new URL:
+            # redirect to a board views url:
             return redirect('board_view', board_id)
         return render(self.request, self.template_name, {'list_view': list_view})
 
@@ -113,6 +111,6 @@ class AddCard(TemplateView):
             form = form.save(commit=False)
             form.boardList = boardList
             form.save()
-            # redirect to a new URL:
+            # redirect to a board views:
             return redirect(self.template_name_post, boardList.board_id)
         return render(self.request, self.template_name, {'form': form})
