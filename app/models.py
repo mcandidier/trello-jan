@@ -2,16 +2,21 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+
 class Board(models.Model):
     title = models.CharField(max_length=30)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     activation = models.BooleanField(default=True)
     date_created = models.DateField(default=timezone.now)
 
+
 class BoardList(models.Model):
+    """ Important docstring
+    """
     title = models.CharField(max_length=30)
     date_created = models.DateField(default=timezone.now)
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
+ 
 
 class Card(models.Model):
     title = models.CharField(max_length=30)
