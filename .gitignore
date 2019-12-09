@@ -6,4 +6,4 @@ venv
 db.sqlite3
 .DS_Store
 migrations/
-trello/__pycache__/settings.cpython-38.pyc
+trello/__pycache__/
