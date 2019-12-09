@@ -15,7 +15,7 @@ urlpatterns = [
     # edit card
     path('board/list/card/edit/<int:id>', EditCard.as_view(), name='card_edit'),
     #  delete list
-    path('list/delete/<int:id>/', DeleteList.as_view(), name='delete_list'),
+    path('board/list/delete/<int:id>/', DeleteList.as_view(), name='delete_list'),
     # delete card data
     path('board/list/cards/delete/<int:id>/', DeleteCard.as_view(), name='delete_card'),
     #ajax urls
