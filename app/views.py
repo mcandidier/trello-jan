@@ -1,16 +1,19 @@
-from .forms import BoardForm, ListForm, CardForm
-from django.shortcuts import redirect
 from django.http import HttpResponse
+from django.shortcuts import redirect
+from .models import Board, Card, BoardList
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
+from .forms import BoardForm, ListForm, CardForm
 from django.shortcuts import render, get_object_or_404
-from .models import Board, Card, BoardList
+
 
 class Boards(TemplateView):
     """
     View the board/s of the user
     """
+
+
     template_name = 'app/index.html'
     def get(self, request):
         # select current user and activation
@@ -42,6 +45,7 @@ class AddBoard(TemplateView):
             # redirect to a home url:
             return HttpResponseRedirect('/')
         return render(request, self.template_name, {'form': form})
+
 
 class BoardView(TemplateView):
     """
@@ -116,16 +120,68 @@ class AddCard(TemplateView):
         return render(self.request, self.template_name, {'form': form})
 
 
-class MyAjax(TemplateView):
-    """ sample ajax page
+class EditCard(TemplateView):
     """
-    template_name = 'app/card_ajax.html'
+    Let user edit card
+    """
 
+    
+    form = CardForm
+    template_name = 'app/card_edit.html'
+    def get(self, *args, **kwargs):
+        card_id = kwargs.get('id')
+        card = get_object_or_404(Card, id=card_id)
+        form = self.form(instance = card)
+        return render(self.request, self.template_name, {'form' : form})
+
+    def post(self, *args, **kwargs):
+        card_id = kwargs.get('id')
+        card = get_object_or_404(Card, id=card_id)
+        form = self.form(self.request.POST, instance = card)
+        if form.is_valid():
+            form.save()
+            # import pdb; pdb.set_trace()
+            return redirect('board_view', card.boardList.board.id)
+
+
+class DeleteList(TemplateView):
+    """
+    Let the user delete list
+    """
+
+
+    template_name = 'board_view'
+    def get(self, request, *args, **kwargs):
+        list_id = kwargs.get('id')
+        _list = get_object_or_404(BoardList, id=list_id)
+        _list.delete()
+        return redirect(self.template_name, _list.board.id)
+
+
+class DeleteCard(TemplateView):
+    """
+    Let the user delete cards
+    """
+
+
+    template_name = 'board_view'
+    def get(self, request, *args, **kwargs):
+        card_id = kwargs.get('id')
+        card = get_object_or_404(Card, id=card_id)
+        card.delete()
+        return redirect(self.template_name, card.boardList.board.id)
+
+
+class MyAjax(TemplateView):
+    """ 
+    Sample ajax page
+    """
+
+
+    template_name = 'app/card_ajax.html'
     def get(self, *args, **kwargs):
         list_id = kwargs.get('id')
-        greetings = 'Hello world'
         context = {
             'cards': Card.objects.filter(boardList__id=list_id),
-            'greetings': greetings
         }
         return render(self.request, self.template_name, context)

@@ -3,22 +3,67 @@
 {% block content %}
 
 <h2>{{ board.title }}</h2>
-<ul>
-    <li></li>
-</ul>
 <a class="btn btn btn-light add-post-button" role="button" href="{% url 'list_new' board.id %}" class="top-menu">Add list</a>
 
 <ul class="li-right">
     {% for list in board_list %}
-    <li class="board_lists" data-id="{{ list.id }}">{{list.title}}</li>
-        <!-- {% for card in card_views %}
-            {% if list.id == card.boardList.id %}
-                <ul>
-                    <li>{{card.title}}</li>
-                </ul>
-            {% endif %}
-        {% endfor%} -->
+    <li>
+        <div class="btn-group">
+            <!-- Display List -->
+            <button type="button" class="btn btn-light">{{list.title}}</button>
+            <button type="button" class="btn btn-light fa fa-ellipsis-h" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="../list/delete/{{list.id }}">Delete</a>
+                <a class="dropdown-item" href="#">Update</a>
+            </div>
+        </div>
+    </li>
+    <!-- Display cards using ajax -->
+    <li><ul  class="board_lists" data-id="{{ list.id }}"></ul></li>
         <a class="btn btn btn-light add-post-button" role="button" href="{% url 'card_new' list.id %}" class="top-menu">Add Card</a>
     {% endfor %}
 </ul>
+
+<!-- Example split danger button -->
+<div class="btn-group">
+    <button type="button" class="btn btn-light">Action</button>
+    <button type="button" class="btn btn-light fa fa-ellipsis-h" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="#">Action</a>
+      <a class="dropdown-item" href="#">Another action</a>
+      <a class="dropdown-item" href="#">Something else here</a>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item" href="#">Separated link</a>
+    </div>
+  </div>
+
+  <!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+        Launch demo modal
+      </button>
+      
+      <!-- Modal -->
+      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              ...
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
 {% endblock %}
