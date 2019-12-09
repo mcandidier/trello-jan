@@ -13,7 +13,7 @@ class Boards(TemplateView):
     View the board/s of the user
     """
 
-
+    
     template_name = 'app/index.html'
     def get(self, request):
         # select current user and activation
@@ -45,7 +45,6 @@ class AddBoard(TemplateView):
             # redirect to a home url:
             return HttpResponseRedirect('/')
         return render(request, self.template_name, {'form': form})
-
 
 class BoardView(TemplateView):
     """
