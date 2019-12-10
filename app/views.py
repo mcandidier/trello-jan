@@ -4,8 +4,32 @@ from .models import Board, Card, BoardList
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
-from .forms import BoardForm, ListForm, CardForm
+from .forms import BoardForm, ListForm, CardForm, UserForm
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render, get_object_or_404
+
+
+# Create user view class
+class LoginView(TemplateView):
+    """
+    Let user to login
+    """
+
+    template_name = 'app/login.html'
+    form = UserForm
+    def get(self, *args, **kwargs):
+        form = self.form()
+        return render(self.request, self.template_name,{ 'form' : form})
+
+    def post(self, *args, **kwargs):
+        username = self.request.POST['username']
+        password = self.request.POST['password']
+        user = authenticate(self.request, username=username, password=password)
+        if user is not None:
+            login(self.request, user)
+            return HttpResponseRedirect('/')
+        #  else:
+        # # Return an 'invalid login' error message. (to be continued)
 
 
 class Boards(TemplateView):
@@ -15,10 +39,10 @@ class Boards(TemplateView):
 
     
     template_name = 'app/index.html'
-    def get(self, request):
+    def get(self, *args, **kwargs):
         # select current user and activation
-        boards = Board.objects.filter(user=request.user, activation=True)
-        return render(request, self.template_name, {'boards' : boards})
+        boards = Board.objects.filter(user=self.request.user, activation=True)
+        return render(self.request, self.template_name, {'boards' : boards})
 
 
 class AddBoard(TemplateView):
@@ -60,7 +84,6 @@ class BoardView(TemplateView):
         board_list = BoardList.objects.filter(board=board_id)
         # select list id
         card_query = Card.objects.all()
-        # import pdb; pdb.set_trace()
         return render(self.request, self.template_name, {'board': board, 'board_list' : board_list, 'card_views' : card_query})
 
 
@@ -89,6 +112,29 @@ class AddList(TemplateView):
             # redirect to a board views url:
             return redirect('board_view', board_id)
         return render(self.request, self.template_name, {'list_view': list_view})
+
+
+class EditList(TemplateView):
+    """
+    Let the user edit list
+    """
+
+
+    form = ListForm
+    template_name = 'app/list_edit.html'
+    def get(self, *args, **kwargs):
+        list_id = kwargs.get('id')
+        _list = get_object_or_404(BoardList, id=list_id)
+        form = self.form(instance = _list)
+        return render(self.request, self.template_name, {'form' : form})
+
+    def post(self, *args, **kwargs):
+        list_id = kwargs.get('id')
+        _list = get_object_or_404(BoardList, id=list_id)
+        form = self.form(self.request.POST, instance = _list)
+        if form.is_valid():
+            form.save()
+            return redirect('board_view', _list.board.id)
 
 
 class AddCard(TemplateView):
@@ -124,7 +170,7 @@ class EditCard(TemplateView):
     Let user edit card
     """
 
-    
+
     form = CardForm
     template_name = 'app/card_edit.html'
     def get(self, *args, **kwargs):
@@ -139,7 +185,6 @@ class EditCard(TemplateView):
         form = self.form(self.request.POST, instance = card)
         if form.is_valid():
             form.save()
-            # import pdb; pdb.set_trace()
             return redirect('board_view', card.boardList.board.id)
 
 
@@ -171,9 +216,9 @@ class DeleteCard(TemplateView):
         return redirect(self.template_name, card.boardList.board.id)
 
 
-class MyAjax(TemplateView):
+class CardAjax(TemplateView):
     """ 
-    Sample ajax page
+    Card ajax page
     """
 
 
