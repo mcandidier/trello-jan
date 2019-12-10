@@ -1,0 +1,28 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+
+<h2>{{ board.title }}</h2>
+<a class="btn btn btn-light add-post-button" role="button" href="{% url 'list_new' board.id %}" class="top-menu">Add list</a>
+
+<ul class="li-right">
+    {% for list in board_list %}
+    <li>
+        <div class="btn-group">
+            <!-- Display List -->
+            <button type="button" class="btn btn-light">{{list.title}}</button>
+            <button type="button" class="btn btn-light fa fa-ellipsis-h" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'delete_list' list.id %}">Delete</a>
+                <a class="dropdown-item" href="{% url 'edit_list' board.id list.id %}">Edit</a>
+            </div>
+        </div>
+    </li>
+    <!-- Display cards using ajax -->
+    <li><ul  class="board_lists" data-id="{{ list.id }}"></ul></li>
+        <a class="btn btn btn-light add-post-button" role="button" href="{% url 'card_new' list.id %}" class="top-menu">Add Card</a>
+    {% endfor %}
+</ul>
+{% endblock %}

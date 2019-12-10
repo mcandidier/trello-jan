@@ -1,0 +1,12 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+    <h2>Edit List</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {% for forms in form %}
+            {{ forms }}
+        {% endfor %}
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>
+{% endblock %}

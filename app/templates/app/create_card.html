@@ -1,0 +1,11 @@
+{% extends 'app/base.html' %}
+{% block content %}
+    <h2>Create Card</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% for forms in form %}
+            {{ forms }} {{ forms.errors }}
+        {% endfor %}
+        <input name="next" type="submit" value="Submit">
+    </form>
+{% endblock %}

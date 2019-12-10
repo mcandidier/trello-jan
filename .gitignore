@@ -1,0 +1,9 @@
+*.pyc
+*~
+/.vscode
+__pycache__
+venv
+db.sqlite3
+.DS_Store
+migrations/
+trello/__pycache__/
