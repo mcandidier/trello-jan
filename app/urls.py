@@ -11,7 +11,7 @@ from app.views import (
 )
 
 urlpatterns = [
-    path('', Boards.as_view()),
+    path('', Boards.as_view(), name='home'),
     # login page
     path('login/', LoginView.as_view(), name='login'),
     # logout

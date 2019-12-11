@@ -32,7 +32,7 @@ class AddBoard(TemplateView):
     template_name = 'app/create_board.html'
     def get(self,request):
         form = self.form()
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'forms': form})
 
     def post(self, request):
         # create a form instance and populate it with data from the request:
@@ -45,8 +45,8 @@ class AddBoard(TemplateView):
             form.user = request.user
             form.save()
             # redirect to a home url:
-            return HttpResponseRedirect('/')
-        return render(request, self.template_name, {'form': form})
+            return HttpResponseRedirect('home')
+        return render(request, self.template_name, {'forms': form})
 
 class BoardView(TemplateView):
     """
@@ -62,7 +62,6 @@ class BoardView(TemplateView):
         board_list = BoardList.objects.filter(board=board_id)
         # select list id
         card_query = Card.objects.all()
-        # import pdb; pdb.set_trace()
         return render(self.request, self.template_name, {'board': board, 'board_list' : board_list, 'card_views' : card_query})
 
 
@@ -223,7 +222,7 @@ class SignupView(TemplateView):
                 user = User.objects.create_user(username = username, email = email, password = password1)
                 user.save()
                 login(self.request, user)
-                return redirect('/')
+                return redirect('home')
 
     
 class LoginView(TemplateView):
@@ -237,7 +236,7 @@ class LoginView(TemplateView):
     form = UserForm
     def get(self, *args, **kwargs):
         form = self.form()
-        return render(self.request, self.template_name,{ 'form' : form})
+        return render(self.request, self.template_name,{ 'form' : form })
 
     def post(self, *args, **kwargs):
         username = self.request.POST['username']
@@ -246,10 +245,15 @@ class LoginView(TemplateView):
         if user is not None:
             if user.is_active:
                 login(self.request, user)
-                return redirect('/')
+                return redirect('home')
         else:
-            messages.warning(self.request,'Username or Password not correct')
-            return render(self.request, 'app/login.html', {'form': self.form})
+            if username == '':
+                messages.warning(self.request,'Please input the username')
+                return render(self.request, 'app/login.html', {'form': self.form})
+            else:
+                messages.warning(self.request,'Please input the password')
+                return render(self.request, 'app/login.html', {'form': self.form})
+            
 
 class LogoutView(TemplateView):
     """

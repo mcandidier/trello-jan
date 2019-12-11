@@ -8,7 +8,7 @@
                 <form method="post" novalidate>
                     {% csrf_token %}
                     <div class="form-group">
-                        {{form.username}}
+                        {{form.username}}{{form.errors}}
                     </div>
                     <div class="form-group">
                         {{form.password}}
