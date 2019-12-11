@@ -41,5 +41,10 @@ ul.list-inline li, .right-menu-li {
   
   
   .modal-backdrop.fade {
-      opacity: 0.5 !important;
+    opacity: 0.5 !important;
+  }
+  .login-box{
+    border: 1px solid #d4d4d4c7;
+    border-radius: 4px;
+    padding: 20px;
   }

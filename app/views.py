@@ -4,8 +4,10 @@ from .models import Board, Card, BoardList
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
-from .forms import BoardForm, ListForm, CardForm
+from .forms import BoardForm, ListForm, CardForm, UserForm, UserSignupForm
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, get_object_or_404
+from django.contrib import messages
 
 
 class Boards(TemplateView):
@@ -13,7 +15,7 @@ class Boards(TemplateView):
     View the board/s of the user
     """
 
-    
+
     template_name = 'app/index.html'
     def get(self, request):
         # select current user and activation
@@ -148,7 +150,6 @@ class DeleteList(TemplateView):
     Let the user delete list
     """
 
-
     template_name = 'board_view'
     def get(self, request, *args, **kwargs):
         list_id = kwargs.get('id')
@@ -171,7 +172,7 @@ class DeleteCard(TemplateView):
         return redirect(self.template_name, card.boardList.board.id)
 
 
-class MyAjax(TemplateView):
+class CardAjax(TemplateView):
     """ 
     Sample ajax page
     """
@@ -184,3 +185,76 @@ class MyAjax(TemplateView):
             'cards': Card.objects.filter(boardList__id=list_id),
         }
         return render(self.request, self.template_name, context)
+
+
+
+class SignupView(TemplateView):
+    """
+    Create user
+    """
+    
+
+    form = UserSignupForm
+    template_name = 'app/signup.html'
+    def get(self, *args, **kwargs):
+        form = self.form()
+        return render(self.request, self.template_name,{ 'form' : form})
+
+    def post(self, *args, **kwargs):
+        username = self.request.POST['username']
+        email = self.request.POST['email']
+        password1 = self.request.POST['password1']
+        password2 = self.request.POST['password2']
+        user = authenticate(self.request, username=username, password=password1)
+        exists = User.objects.filter(username=username)
+        if password1 != password2:
+            messages.warning(self.request,'Password is not match')
+            return render(self.request, 'app/signup.html', {'form': self.form})
+        else:
+            if user is not None:
+                messages.warning(self.request,'The acount is already exist!')
+                return render(self.request, 'app/signup.html', {'form': self.form})
+
+            elif exists:
+                messages.warning(self.request,'Username is already exist!')
+                return render(self.request, 'app/signup.html', {'form': self.form})
+            
+            else:
+                user = User.objects.create_user(username = username, email = email, password = password1)
+                user.save()
+                login(self.request, user)
+                return redirect('/')
+
+    
+class LoginView(TemplateView):
+    """
+    Let user to login
+    """
+
+
+    template_name = 'app/login.html'
+    response = HttpResponse()
+    form = UserForm
+    def get(self, *args, **kwargs):
+        form = self.form()
+        return render(self.request, self.template_name,{ 'form' : form})
+
+    def post(self, *args, **kwargs):
+        username = self.request.POST['username']
+        password = self.request.POST['password']
+        user = authenticate(self.request, username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(self.request, user)
+                return redirect('/')
+        else:
+            messages.warning(self.request,'Username or Password not correct')
+            return render(self.request, 'app/login.html', {'form': self.form})
+
+class LogoutView(TemplateView):
+    """
+    Logout the user
+    """
+
+    def get(self, *args, **kwargs):
+        logout(self.request)

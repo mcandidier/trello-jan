@@ -7,3 +7,4 @@ db.sqlite3
 .DS_Store
 migrations/
 trello/__pycache__/
+__pycache__/settings.cpython-38.pyc
