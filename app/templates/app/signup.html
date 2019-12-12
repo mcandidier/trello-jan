@@ -8,25 +8,19 @@
                 <form method="post" novalidate>
                     {% csrf_token %}
                     <div class="form-group">
-                        {{form.username}}
+                        {{form.username}}{{form.username.errors}}
                     </div>
                     <div class="form-group">
-                        {{form.email}}
+                        {{form.email}}{{form.email.errors}}
                     </div>
                     <div class="form-group">
-                        {{form.password1}}
+                        {{form.password1}}{{form.password1.errors}}
                     </div>
                     <div class="form-group">
-                        {{form.password2}}
+                        {{form.password2}}{{form.password2.errors}}
                     </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
-                {% for message in messages %}
-                    <div {% if message.tags %} class="alert alert-{{ message.tags }} mt-3" {% endif %}>
-                        <a class="close" href="#" data-dismiss="alert">×</a>
-                        {{ message }}
-                    </div>
-                {% endfor %}
             </div>
         </div>
     </div>
