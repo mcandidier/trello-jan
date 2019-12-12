@@ -11,6 +11,7 @@ from django.contrib import messages
 
 
 class Boards(TemplateView):
+
     """
     View the board/s of the user
     """
@@ -24,6 +25,7 @@ class Boards(TemplateView):
 
 
 class AddBoard(TemplateView):
+
     """
     Let the user add new board
     """
@@ -49,6 +51,7 @@ class AddBoard(TemplateView):
         return render(request, self.template_name, {'forms': form})
 
 class BoardView(TemplateView):
+
     """
     Redirect the user to the selected board
     """
@@ -59,40 +62,40 @@ class BoardView(TemplateView):
         # iterate board model, if data doesnt exist it will move you to 404 page
         board = get_object_or_404(Board, id=board_id)
         # iterate list model
-        board_list = BoardList.objects.filter(board=board_id)
-        # select list id
-        card_query = Card.objects.all()
-        return render(self.request, self.template_name, {'board': board, 'board_list' : board_list, 'card_views' : card_query})
+        list_object = BoardList.objects.filter(board=board_id)
+        return render(self.request, self.template_name, {'board': board, 'list_object' : list_object})
 
 
 class AddList(TemplateView):
+
     """
     Let the user add new list
     """
 
 
-    list_view = ListForm
+    lists = ListForm
     template_name = 'app/create_list.html'
     def get(self, *args, **kwargs):
-        list_view = self.list_view()
-        return render(self.request, self.template_name, {'list_view': list_view})
+        lists = self.lists()
+        return render(self.request, self.template_name, {'lists': lists})
 
     def post(self, *args, **kwargs):
         board_id = kwargs.get('id')
         board = Board.objects.get(id=board_id)
         # create a form instance and populate it with data from the request:
-        list_view = self.list_view(self.request.POST)
+        lists = self.lists(self.request.POST)
         # check whether it's valid:
-        if list_view.is_valid():
-            list_view = list_view.save(commit=False)
-            list_view.board = board
-            list_view.save()
+        if lists.is_valid():
+            lists = lists.save(commit=False)
+            lists.board = board
+            lists.save()
             # redirect to a board views url:
             return redirect('board_view', board_id)
-        return render(self.request, self.template_name, {'list_view': list_view})
+        return render(self.request, self.template_name, {'lists': lists})
 
 
 class AddCard(TemplateView):
+
     """
     Let the user add new list
     """
@@ -103,7 +106,7 @@ class AddCard(TemplateView):
     template_name_post = 'board_view'
     def get(self, *args, **kwargs):
         form = self.form()
-        return render(self.request, self.template_name, {'form' : form})
+        return render(self.request, self.template_name, {'forms' : form})
 
     def post(self, *args, **kwargs):
         list_id = kwargs.get('id')
@@ -117,10 +120,11 @@ class AddCard(TemplateView):
             form.save()
             # redirect to a board views:
             return redirect(self.template_name_post, boardList.board_id)
-        return render(self.request, self.template_name, {'form': form})
+        return render(self.request, self.template_name, {'forms': form})
 
 
 class EditCard(TemplateView):
+
     """
     Let user edit card
     """
@@ -132,7 +136,7 @@ class EditCard(TemplateView):
         card_id = kwargs.get('id')
         card = get_object_or_404(Card, id=card_id)
         form = self.form(instance = card)
-        return render(self.request, self.template_name, {'form' : form})
+        return render(self.request, self.template_name, {'forms' : form})
 
     def post(self, *args, **kwargs):
         card_id = kwargs.get('id')
@@ -140,11 +144,13 @@ class EditCard(TemplateView):
         form = self.form(self.request.POST, instance = card)
         if form.is_valid():
             form.save()
-            # import pdb; pdb.set_trace()
             return redirect('board_view', card.boardList.board.id)
+        else:
+            return render(self.request, self.template_name, {'forms' : form})
 
 
 class DeleteList(TemplateView):
+
     """
     Let the user delete list
     """
@@ -158,6 +164,7 @@ class DeleteList(TemplateView):
 
 
 class DeleteCard(TemplateView):
+
     """
     Let the user delete cards
     """
@@ -172,6 +179,7 @@ class DeleteCard(TemplateView):
 
 
 class CardAjax(TemplateView):
+
     """ 
     Sample ajax page
     """
@@ -188,6 +196,7 @@ class CardAjax(TemplateView):
 
 
 class SignupView(TemplateView):
+
     """
     Create user
     """
@@ -206,23 +215,14 @@ class SignupView(TemplateView):
         password2 = self.request.POST['password2']
         user = authenticate(self.request, username=username, password=password1)
         exists = User.objects.filter(username=username)
-        if password1 != password2:
-            messages.warning(self.request,'Password is not match')
-            return render(self.request, 'app/signup.html', {'form': self.form})
-        else:
-            if user is not None:
-                messages.warning(self.request,'The acount is already exist!')
-                return render(self.request, 'app/signup.html', {'form': self.form})
-
-            elif exists:
-                messages.warning(self.request,'Username is already exist!')
-                return render(self.request, 'app/signup.html', {'form': self.form})
-            
-            else:
+        if self.request.method == 'POST':
+            form = self.form(self.request.POST)
+            if form.is_valid():
                 user = User.objects.create_user(username = username, email = email, password = password1)
                 user.save()
                 login(self.request, user)
                 return redirect('home')
+        return render(self.request, self.template_name, {'form': form})
 
     
 class LoginView(TemplateView):
@@ -230,35 +230,58 @@ class LoginView(TemplateView):
     Let user to login
     """
 
-
     template_name = 'app/login.html'
-    response = HttpResponse()
     form = UserForm
+    error = False
+
     def get(self, *args, **kwargs):
         form = self.form()
         return render(self.request, self.template_name,{ 'form' : form })
 
     def post(self, *args, **kwargs):
-        username = self.request.POST['username']
-        password = self.request.POST['password']
-        user = authenticate(self.request, username=username, password=password)
-        if user is not None:
-            if user.is_active:
+        form = self.form(self.request.POST)
+        if form.is_valid():
+            username = self.request.POST['username']
+            password = self.request.POST['password']
+            user = authenticate(self.request,username=username,password=password)
+            if user is not None:
                 login(self.request, user)
                 return redirect('home')
-        else:
-            if username == '':
-                messages.warning(self.request,'Please input the username')
-                return render(self.request, 'app/login.html', {'form': self.form})
-            else:
-                messages.warning(self.request,'Please input the password')
-                return render(self.request, 'app/login.html', {'form': self.form})
-            
+            self.error = True 
+        return render(self.request, self.template_name,{'form':form, 'error':self.error})
+
 
 class LogoutView(TemplateView):
+
     """
     Logout the user
     """
 
     def get(self, *args, **kwargs):
         logout(self.request)
+
+
+class EditList(TemplateView):
+
+    """
+    Let the user edit list
+    """
+
+
+    form = ListForm
+    template_name = 'app/list_edit.html'
+    def get(self, *args, **kwargs):
+        list_id = kwargs.get('id')
+        list_object = get_object_or_404(BoardList, id=list_id)
+        form = self.form(instance = list_object)
+        return render(self.request, self.template_name, {'forms' : form})
+
+    def post(self, *args, **kwargs):
+        list_id = kwargs.get('id')
+        list_object = get_object_or_404(BoardList, id=list_id)
+        form = self.form(self.request.POST, instance = list_object)
+        if form.is_valid():
+            form.save()
+            return redirect('board_view', list_object.board.id)
+        else:
+            return render(self.request, self.template_name, {'forms' : form})

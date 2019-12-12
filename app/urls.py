@@ -4,7 +4,7 @@ from app.views import (
     AddBoard, 
     BoardView,
     AddList, AddCard, CardAjax, DeleteCard, DeleteList, EditCard, 
-    # EditList,
+    EditList,
     LoginView,
     SignupView,
     LogoutView,
@@ -32,6 +32,8 @@ urlpatterns = [
     path('board/list/delete/<int:id>/', DeleteList.as_view(), name='delete_list'),
     # delete card data
     path('board/list/cards/delete/<int:id>/', DeleteCard.as_view(), name='delete_card'),
+    # Edit list
+    path('board/<int:board_id>/list/edit/<int:id>', EditList.as_view(), name='list_edit'),
     #ajax urls
     path('list/<int:id>/cards/', CardAjax.as_view(), name='card_list'),
 ]
