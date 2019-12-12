@@ -16,8 +16,8 @@ class Boards(TemplateView):
     View the board/s of the user
     """
 
-
     template_name = 'app/index.html'
+
     def get(self, request):
         # select current user and activation
         boards = Board.objects.filter(user=request.user, activation=True)
@@ -25,7 +25,6 @@ class Boards(TemplateView):
 
 
 class AddBoard(TemplateView):
-
     """
     Let the user add new board
     """
@@ -50,13 +49,14 @@ class AddBoard(TemplateView):
             return HttpResponseRedirect('home')
         return render(request, self.template_name, {'forms': form})
 
-class BoardView(TemplateView):
 
+class BoardView(TemplateView):
     """
     Redirect the user to the selected board
     """
 
     template_name = 'app/board_view.html'
+    
     def get(self, *args, **kwargs):
         board_id = kwargs.get('id')
         # iterate board model, if data doesnt exist it will move you to 404 page
@@ -67,13 +67,12 @@ class BoardView(TemplateView):
 
 
 class AddList(TemplateView):
-
     """
     Let the user add new list
     """
 
-
     lists = ListForm
+
     template_name = 'app/create_list.html'
     def get(self, *args, **kwargs):
         lists = self.lists()
@@ -95,15 +94,14 @@ class AddList(TemplateView):
 
 
 class AddCard(TemplateView):
-
     """
     Let the user add new list
     """
 
-
     form = CardForm
     template_name = 'app/create_card.html'
     template_name_post = 'board_view'
+
     def get(self, *args, **kwargs):
         form = self.form()
         return render(self.request, self.template_name, {'forms' : form})
@@ -124,14 +122,13 @@ class AddCard(TemplateView):
 
 
 class EditCard(TemplateView):
-
     """
     Let user edit card
     """
 
-    
     form = CardForm
     template_name = 'app/card_edit.html'
+
     def get(self, *args, **kwargs):
         card_id = kwargs.get('id')
         card = get_object_or_404(Card, id=card_id)
@@ -150,7 +147,6 @@ class EditCard(TemplateView):
 
 
 class DeleteList(TemplateView):
-
     """
     Let the user delete list
     """
@@ -164,13 +160,12 @@ class DeleteList(TemplateView):
 
 
 class DeleteCard(TemplateView):
-
     """
     Let the user delete cards
     """
 
-
     template_name = 'board_view'
+
     def get(self, request, *args, **kwargs):
         card_id = kwargs.get('id')
         card = get_object_or_404(Card, id=card_id)
@@ -179,13 +174,12 @@ class DeleteCard(TemplateView):
 
 
 class CardAjax(TemplateView):
-
     """ 
     Sample ajax page
     """
 
-
     template_name = 'app/card_ajax.html'
+
     def get(self, *args, **kwargs):
         list_id = kwargs.get('id')
         context = {
@@ -194,16 +188,15 @@ class CardAjax(TemplateView):
         return render(self.request, self.template_name, context)
 
 
-
 class SignupView(TemplateView):
-
     """
     Create user
     """
-    
 
     form = UserSignupForm
     template_name = 'app/signup.html'
+    error = False
+
     def get(self, *args, **kwargs):
         form = self.form()
         return render(self.request, self.template_name,{ 'form' : form})
@@ -222,9 +215,9 @@ class SignupView(TemplateView):
                 user.save()
                 login(self.request, user)
                 return redirect('home')
-        return render(self.request, self.template_name, {'form': form})
+        return render(self.request, self.template_name, {'form': form, 'error':self.error})
 
-    
+
 class LoginView(TemplateView):
     """
     Let user to login
@@ -252,7 +245,6 @@ class LoginView(TemplateView):
 
 
 class LogoutView(TemplateView):
-
     """
     Logout the user
     """
@@ -262,14 +254,13 @@ class LogoutView(TemplateView):
 
 
 class EditList(TemplateView):
-
     """
     Let the user edit list
     """
 
-
     form = ListForm
     template_name = 'app/list_edit.html'
+
     def get(self, *args, **kwargs):
         list_id = kwargs.get('id')
         list_object = get_object_or_404(BoardList, id=list_id)
