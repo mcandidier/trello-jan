@@ -16,7 +16,9 @@
                     <div class="mb-2">
                         <a href="{% url 'signup' %}">Sign up</a>
                     </div>
-                    
+                    {% if error %}
+                    <p>Invalid Username and Password</p>
+                    {% endif %}
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
                 
