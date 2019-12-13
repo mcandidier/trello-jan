@@ -3,8 +3,8 @@
     <h2>Create Card</h2>
     <form method="post" novalidate>
         {% csrf_token %}
-        {% for forms in form %}
-            {{ forms }} {{ forms.errors }}
+        {% for form in forms %}
+            {{ form }} {{ form.errors }}
         {% endfor %}
         <input name="next" type="submit" value="Submit">
     </form>

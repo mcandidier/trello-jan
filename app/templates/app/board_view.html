@@ -6,7 +6,7 @@
 <a class="btn btn btn-light add-post-button" role="button" href="{% url 'list_new' board.id %}" class="top-menu">Add list</a>
 
 <ul class="li-right">
-    {% for list in board_list %}
+    {% for list in list_object %}
     <li>
         <div class="btn-group">
             <!-- Display List -->
@@ -16,13 +16,59 @@
             </button>
             <div class="dropdown-menu">
                 <a class="dropdown-item" href="{% url 'delete_list' list.id %}">Delete</a>
-                <a class="dropdown-item" href="#">Update</a>
+                <a class="dropdown-item" href="{% url 'list_edit' board.id list.id %}">Update</a>
             </div>
         </div>
     </li>
     <!-- Display cards using ajax -->
-    <li><ul  class="board_lists" data-id="{{ list.id }}"></ul></li>
+    <li><ul  class="list_objects" data-id="{{ list.id }}"></ul></li>
         <a class="btn btn btn-light add-post-button" role="button" href="{% url 'card_new' list.id %}" class="top-menu">Add Card</a>
     {% endfor %}
 </ul>
+
+<!-- Modal -->
+<div class="modal fade btn" id="viewCardModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">{{cards}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+      </div>
+    </div>
+</div>
+<!-- Modal -->
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    Launch demo modal
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 {% endblock %}

@@ -64,4 +64,4 @@ class UserSignupForm(forms.ModelForm):
         password2 = self.cleaned_data.get('password2')
         if password1 != password2:
             raise forms.ValidationError('You input not the same password')
-        return password2
+        return

@@ -1,0 +1,5 @@
+{% block content %}
+    {% for card in cards %}
+        {{ card.title }}{{ card.errors }}<br>
+    {% endfor %}
+{% endblock %}

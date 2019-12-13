@@ -3,21 +3,17 @@
 <li>
     <div class="btn-group">
         <!-- Display List -->
-        <button type="button" class="btn btn-light">{{card.title}}</button>
+        <button type="button" class="btn btn-light" id="card{{ card.id }}" data-toggle="modal" data-target="#viewCardModal" data-remote="{% url 'show_cards' card.id %}">{{card.title}}</button>
         <button type="button" class="btn btn-light fa fa-ellipsis-h" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="sr-only">Toggle Dropdown</span>
         </button>
         <div class="dropdown-menu">
             <a class="dropdown-item" href="{% url 'delete_card' card.id %}">Delete</a>
             <a class="dropdown-item" href="{% url 'card_edit' card.id %}">Edit</a>
+        </div>
     </div>
 </li>
+  
 {% empty %}
-<p>no cards</p>
+<span>No cards</span>
 {% endfor %}
-
-
-
-
-
 

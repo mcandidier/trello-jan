@@ -8,6 +8,12 @@ from app.views import (
     LoginView,
     SignupView,
     LogoutView,
+    ShowCards,
+
+
+    SampleInput,
+    OutputAjax,
+    OutputAjaxs,
 )
 
 urlpatterns = [
@@ -34,6 +40,15 @@ urlpatterns = [
     path('board/list/cards/delete/<int:id>/', DeleteCard.as_view(), name='delete_card'),
     # Edit list
     path('board/<int:board_id>/list/edit/<int:id>', EditList.as_view(), name='list_edit'),
+    # 
+    path('board/show/cards/<int:id>', ShowCards.as_view(), name='show_cards'),
+
     #ajax urls
     path('list/<int:id>/cards/', CardAjax.as_view(), name='card_list'),
+
+    # for dev only
+    path('board/dev/', SampleInput.as_view(), name='dev'),
+    # ajax output
+    path('board/output/ajax/', OutputAjax.as_view(), name='output_ajax'),
+    path('board/output/ajax/<int:id>', OutputAjaxs.as_view(), name='output_ajax'),
 ]
