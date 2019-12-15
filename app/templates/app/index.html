@@ -19,7 +19,19 @@
             <div class="col-md-2">
                 <ul class="list-inline right-menu-li">
                     {% for board in boards %}
-                    <li><a class="btn btn-light" href="{% url 'board_view' id=board.id %}">{{ board.title }}</a></li>
+                    <li>
+                        <div class="btn-group board-btn">
+                            <a class="btn btn-light" href="{% url 'board_view' id=board.id %}">{{ board.title }}</a>
+                            <button type="button" class="btn btn-light fa fa-ellipsis-h" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'delete_board' board.id %}">Delete</a>
+                            <a class="dropdown-item" href="{% url 'archive_board' board.id %}">Archive</a>
+                            <a class="dropdown-item" href="{% url 'board_edit' board.id %}">Update</a>
+                        </div>
+                        </div>
+                    </li>
                     {% endfor %}
                 </ul>
                 <ul class="list-inline right-menu-li">

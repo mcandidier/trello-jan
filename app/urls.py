@@ -9,6 +9,11 @@ from app.views import (
     SignupView,
     LogoutView,
     ShowCards,
+    ArchiveCard,
+    ArchiveList,
+    DeleteBoard,
+    ArchiveBoard,
+    EditBoard,
 
 
     SampleInput,
@@ -32,15 +37,25 @@ urlpatterns = [
     path('board/<int:id>/list/new', AddList.as_view(), name='list_new'),
     # add user card
     path('board/list/<int:id>/card/new', AddCard.as_view(), name='card_new'),
+    # delete board
+    path('board/delete/<int:id>/', DeleteBoard.as_view(), name='delete_board'),
+    # edit board
+    path('board/edit/<int:id>', EditBoard.as_view(), name='board_edit'),
     # edit card
     path('board/list/card/edit/<int:id>', EditCard.as_view(), name='card_edit'),
     #  delete list
     path('board/list/delete/<int:id>/', DeleteList.as_view(), name='delete_list'),
-    # delete card data
-    path('board/list/cards/delete/<int:id>/', DeleteCard.as_view(), name='delete_card'),
+    # delete card
+    path('board/list/card/delete/<int:id>/', DeleteCard.as_view(), name='delete_card'),
+    # archive board
+    path('board/archive/<int:id>/', ArchiveBoard.as_view(), name='archive_board'),
+    # archive list
+    path('board/list/archive/<int:id>/', ArchiveList.as_view(), name='archive_list'),
+    # archive card
+    path('board/list/card/archive/<int:id>/', ArchiveCard.as_view(), name='archive_card'),
     # Edit list
     path('board/<int:board_id>/list/edit/<int:id>', EditList.as_view(), name='list_edit'),
-    # 
+    # display card modal
     path('board/show/cards/<int:id>', ShowCards.as_view(), name='show_cards'),
 
     #ajax urls

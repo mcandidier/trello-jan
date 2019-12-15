@@ -11,7 +11,7 @@ class Board(models.Model):
 
     title = models.CharField(max_length=30)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    activation = models.BooleanField(default=True)
+    archive = models.BooleanField(default=True)
     date_created = models.DateField(default=timezone.now)
 
     def __str__(self):
@@ -25,6 +25,7 @@ class BoardList(models.Model):
 
     title = models.CharField(max_length=30)
     date_created = models.DateField(default=timezone.now)
+    archive = models.BooleanField(default=True)
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
  
     def __str__(self):
@@ -38,6 +39,7 @@ class Card(models.Model):
 
     title = models.CharField(max_length=30)
     date_created = models.DateField(default=timezone.now)
+    archive = models.BooleanField(default=True)
     boardList = models.ForeignKey(BoardList, on_delete=models.CASCADE)
 
     def __str__(self):

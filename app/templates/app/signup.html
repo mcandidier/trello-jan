@@ -19,6 +19,9 @@
                     <div class="form-group">
                         {{form.password2}}{{form.password2.errors}}
                     </div>
+                    <div class="mb-2">
+                        <a href="{% url 'login' %}">Login</a>
+                    </div>
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
             </div>

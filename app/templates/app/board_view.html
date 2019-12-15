@@ -16,6 +16,7 @@
             </button>
             <div class="dropdown-menu">
                 <a class="dropdown-item" href="{% url 'delete_list' list.id %}">Delete</a>
+                <a class="dropdown-item" href="{% url 'archive_list' list.id %}">Archive</a>
                 <a class="dropdown-item" href="{% url 'list_edit' board.id list.id %}">Update</a>
             </div>
         </div>

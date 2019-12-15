@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import Board, Card, BoardList
 from django.contrib.auth.forms import UserCreationForm
+from django.core.validators import validate_email
 
 
 class BoardForm(forms.ModelForm):
@@ -62,6 +63,23 @@ class UserSignupForm(forms.ModelForm):
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
+
+        # validate if p1 and p2 is equal
         if password1 != password2:
-            raise forms.ValidationError('You input not the same password')
+            # if p1 and p2 is not the same it will raise error
+            raise forms.ValidationError('Password and confirm password does not match!')
         return
+
+    def clean_email(self):
+        # Get the email
+        email = self.cleaned_data.get('email')
+
+        # Check to see if any users already exist with this email as a username.
+        try:
+            match = User.objects.get(email=email)
+        except User.DoesNotExist:
+            # Unable to find a user, this is fine
+            return email
+
+        # A user was found with this as a username, raise an error.
+        raise forms.ValidationError('This email address is already in use!')

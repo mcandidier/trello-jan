@@ -25,7 +25,7 @@ class Boards(TemplateView):
     def get(self, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect('login')
-        boards = Board.objects.filter(user=self.request.user, activation=True)
+        boards = Board.objects.filter(user=self.request.user, archive=True)
         return render(self.request, self.template_name, {'boards' : boards})
 
 
@@ -67,10 +67,10 @@ class BoardView(TemplateView):
         if not self.request.user.is_authenticated:
             return redirect('login')
         board_id = kwargs.get('id')
-        # iterate board model, if data doesnt exist it will move you to 404 page
-        board = get_object_or_404(Board, id=board_id)
+        # iterate board model, if data doesnt exist it will move you to 404 page and if the board doesn't exist to you it returns 404
+        board = get_object_or_404(Board, id=board_id, user=self.request.user)
         # iterate list model
-        list_object = BoardList.objects.filter(board=board_id)
+        list_object = BoardList.objects.filter(board=board_id, archive=True)
         return render(self.request, self.template_name, {'board': board, 'list_object' : list_object})
 
 
@@ -133,6 +133,34 @@ class AddCard(TemplateView):
         return render(self.request, self.template_name, {'forms': form})
 
 
+class EditBoard(TemplateView):
+    """
+    Let user edit card
+    """
+
+    form = CardForm
+    template_name = 'app/board_edit.html'
+
+    def get(self, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return redirect('login')
+        board_id = kwargs.get('id')
+        # import pdb; pdb.set_trace()
+        board_object = get_object_or_404(Board, id=board_id)
+        form = self.form(instance = board_object)
+        return render(self.request, self.template_name, {'forms' : form})
+
+    def post(self, *args, **kwargs):
+        board_id = kwargs.get('id')
+        board_object = get_object_or_404(Board, id=board_id)
+        form = self.form(self.request.POST, instance = board_object)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        else:
+            return render(self.request, self.template_name, {'forms' : form, 'card': card})
+
+
 class EditCard(TemplateView):
     """
     Let user edit card
@@ -160,9 +188,25 @@ class EditCard(TemplateView):
             return render(self.request, self.template_name, {'forms' : form, 'card': card})
 
 
+class DeleteBoard(TemplateView):
+    """
+    Let the user delete the board
+    """
+
+    template_name = 'home'
+    def get(self, request, *args, **kwargs):
+        if not self.request.user.is_authenticated:
+            return redirect('login')
+        board_id = kwargs.get('id')
+        # import pdb; pdb.set_trace()
+        board_object = get_object_or_404(Board, id=board_id)
+        board_object.delete()
+        return redirect(self.template_name)
+
+
 class DeleteList(TemplateView):
     """
-    Let the user delete list
+    Let the user delete the list
     """
 
     template_name = 'board_view'
@@ -170,14 +214,14 @@ class DeleteList(TemplateView):
         if not self.request.user.is_authenticated:
             return redirect('login')
         list_id = kwargs.get('id')
-        _list = get_object_or_404(BoardList, id=list_id)
-        _list.delete()
-        return redirect(self.template_name, _list.board.id)
+        list_object = get_object_or_404(BoardList, id=list_id)
+        list_object.delete()
+        return redirect(self.template_name, list_object.board.id)
 
 
 class DeleteCard(TemplateView):
     """
-    Let the user delete cards
+    Let the user delete the cards
     """
 
     template_name = 'board_view'
@@ -201,7 +245,7 @@ class CardAjax(TemplateView):
     def get(self, *args, **kwargs):
         list_id = kwargs.get('id')
         context = {
-            'cards': Card.objects.filter(boardList__id=list_id),
+            'cards': Card.objects.filter(boardList__id=list_id, archive=True),
         }
         return render(self.request, self.template_name, context)
 
@@ -224,7 +268,7 @@ class SignupView(TemplateView):
         email = self.request.POST['email']
         password1 = self.request.POST['password1']
         password2 = self.request.POST['password2']
-        user = authenticate(self.request, username=username, password=password1)
+        user = authenticate(self.request, username=username, password=password1, email=email)
         exists = User.objects.filter(username=username)
         if self.request.method == 'POST':
             form = self.form(self.request.POST)
@@ -311,6 +355,48 @@ class ShowCards(TemplateView):
         card_id = kwargs.get('id')
         cards = Card.objects.filter(id=card_id)
         return render(self.request, self.template_name, {'cards' : cards})
+
+
+class ArchiveCard(TemplateView):
+    """
+    Archive Cards
+    """
+
+    def get(self, *args, **kwargs):
+        card_id = kwargs.get('id')
+        card = get_object_or_404(Card, id=card_id)
+        card.archive = False
+        card.save()
+        return redirect('board_view', card.boardList.board.id)
+
+
+class ArchiveList(TemplateView):
+    """
+    Archive List
+    """
+
+    def get(self, *args, **kwargs):
+        list_id = kwargs.get('id')
+        list_object = get_object_or_404(BoardList, id=list_id)
+        # import pdb; pdb.set_trace()
+        list_object.archive = False
+        list_object.save()
+        # import pdb; pdb.set_trace()
+        return redirect('board_view', list_object.board.id)
+
+
+class ArchiveBoard(TemplateView):
+    """
+    Archive List
+    """
+
+    def get(self, *args, **kwargs):
+        board_id = kwargs.get('id')
+        board_object = get_object_or_404(Board, id=board_id)
+        board_object.archive = False
+        # import pdb; pdb.set_trace()
+        board_object.save()
+        return redirect('home')
 
 
 

@@ -49,12 +49,10 @@ $.ajax({
 
 // dev
 
-$("form").submit(function(e){
-    $.post('', $(this).serialize());
-    console.log('ssssss');
-    $('div').append('dsd');
-    e.preventDefault();
-});
+// $("form").submit(function(e){
+//     $.post('', $(this).serialize());
+//     e.preventDefault();
+// });
 
 function showUser(str) {
     if (str=="") {

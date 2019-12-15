@@ -29,3 +29,6 @@ ul.list-inline li, .right-menu-li {
     border-radius: 4px;
     padding: 20px;
   }
+  .board-btn{
+    width: 100%;
+  }
