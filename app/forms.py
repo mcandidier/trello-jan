@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Board, Card, BoardList
+from .models import Board, Card, BoardList, AuthorizedMember
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email
 
@@ -80,6 +80,40 @@ class UserSignupForm(forms.ModelForm):
         except User.DoesNotExist:
             # Unable to find a user, this is fine
             return email
+
+        # A user was found with this as a username, raise an error.
+        raise forms.ValidationError('This email address is already in use!')
+
+class PostForm(forms.ModelForm):
+    """
+    List Form template
+    """
+
+    class Meta:
+        model = BoardList
+        fields = ('title',)
+
+
+class AuthorizedEmail(forms.ModelForm):
+    """
+    Authorized email
+    """
+
+    authorized_email = forms.EmailField(widget=forms.EmailInput(attrs={'class':'form-control','placeholder':'Email'}))
+    class Meta:
+        model = AuthorizedMember
+        fields = ('authorized_email',)
+
+    def clean_authorized_email(self):
+        # Get the email
+        authorized_email = self.cleaned_data.get('authorized_email')
+
+        # Check to see if any users already exist with this email as a email.
+        try:
+            match = AuthorizedMember.objects.get(authorized_email=authorized_email)
+        except AuthorizedMember.DoesNotExist:
+            # Unable to find a user, this is fine
+            return authorized_email
 
         # A user was found with this as a username, raise an error.
         raise forms.ValidationError('This email address is already in use!')

@@ -1,5 +1,5 @@
 <h2>Edit Cards</h2>
-<form method="POST" class="" novalidate="">{% csrf_token %}
+<form method="POST" class="card-form-update" novalidate="">{% csrf_token %}
     {% for form in forms %}
         {{ form }}{{ form.errors }}
     {% endfor %}

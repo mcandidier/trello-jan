@@ -3,21 +3,21 @@ from django.template import RequestContext
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from .models import Board, Card, BoardList
+from .models import Board, Card, BoardList, AuthorizedMember, Post
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
-from .forms import BoardForm, ListForm, CardForm, UserForm, UserSignupForm
+from .forms import BoardForm, ListForm, CardForm, UserForm, UserSignupForm, AuthorizedEmail
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
-
+from django.core.exceptions import PermissionDenied
 
 class Boards(TemplateView):
 
     """
-    View the board/s of the user
+    View the boards of the user
     """
 
     template_name = 'app/index.html'
@@ -25,8 +25,13 @@ class Boards(TemplateView):
     def get(self, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect('login')
-        boards = Board.objects.filter(user=self.request.user, archive=True)
-        return render(self.request, self.template_name, {'boards' : boards})
+        context = {
+            'boards': Board.objects.filter(user=self.request.user, archive=True),
+            'archived_boards' : Board.objects.filter(user=self.request.user, archive=False),
+            'archived_lists' : BoardList.objects.filter(archive=False),
+            'archived_cards' : Card.objects.filter(archive=False),
+        }
+        return render(self.request, self.template_name, context)
 
 
 class AddBoard(TemplateView):
@@ -36,8 +41,6 @@ class AddBoard(TemplateView):
     form = BoardForm
     template_name = 'app/create_board.html'
     def get(self, *args, **kwargs):
-        if not self.request.user.is_authenticated:
-            return redirect('login')
         form = self.form()
         return render(self.request, self.template_name, {'forms': form})
 
@@ -46,7 +49,6 @@ class AddBoard(TemplateView):
         form = self.form(self.request.POST)
         # check whether it's valid:
         if form.is_valid():
-            # import pdb; pdb.set_trace()
             # if it is valid, save(commit=False) gets you a model object, then you can add your extra data
             board = form.save(commit=False)
             # add user data then save() it
@@ -57,21 +59,58 @@ class AddBoard(TemplateView):
         return render(self.request, self.template_name, {'forms': form})
 
 
-class BoardView(TemplateView):
+
+class MembersMixIn:
+
+    def dispatch(self, request, *args, **kwargs):
+        if AuthorizedMember.objects.filter(user=request.user, board=kwargs.get('id')):
+            return super().dispatch(request, *args, **kwargs)
+        else:
+            raise PermissionDenied
+
+class BoardView(MembersMixIn,TemplateView):
     """
     Redirect the user to the selected board
     """
 
+    authorized_email = AuthorizedEmail
     template_name = 'app/board_view.html'
+    template_name_post = 'board_view'
+    error = False
     def get(self, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect('login')
+
+        # if self.request.user in Board.objects.get(pk=kwargs['id']).members
+        
+        # user board id
         board_id = kwargs.get('id')
-        # iterate board model, if data doesnt exist it will move you to 404 page and if the board doesn't exist to you it returns 404
-        board = get_object_or_404(Board, id=board_id, user=self.request.user)
-        # iterate list model
-        list_object = BoardList.objects.filter(board=board_id, archive=True)
-        return render(self.request, self.template_name, {'board': board, 'list_object' : list_object})
+        # authorized email to access other boards
+        authorized_email = self.authorized_email()
+        context = {
+            'board' : get_object_or_404(Board, id=board_id),
+            'list_object' : BoardList.objects.filter(board=board_id, archive=True),
+            'boards': Board.objects.filter(user=self.request.user, archive=True),
+            'authorized_email' : authorized_email,
+            'archived_boards' : Board.objects.filter(user=self.request.user, archive=False),
+            'archived_lists' : BoardList.objects.filter(archive=False),
+            'archived_cards' : Card.objects.filter(archive=False),
+        }
+        return render(self.request, self.template_name, context)
+
+    def post(self, *args, **kwargs):
+        board_id = kwargs.get('id')
+        board_object = get_object_or_404(Board, id=board_id)
+        # create a form instance and populate it with data from the request:
+        authorized_email_form = self.authorized_email(self.request.POST)
+        # check whether it's valid:
+        if authorized_email_form.is_valid():
+            authorized_email_form = authorized_email_form.save(commit=False)
+            authorized_email_form.user = self.request.user
+            authorized_email_form.board = board_object
+            authorized_email_form.save()
+            return redirect(self.template_name_post, board_id)
+        return redirect(self.template_name_post, board_id)
 
 
 class AddList(TemplateView):
@@ -79,28 +118,28 @@ class AddList(TemplateView):
     Let the user add new list
     """
 
-    lists = ListForm
+    form = ListForm
 
     template_name = 'app/create_list.html'
     def get(self, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect('login')
-        lists = self.lists()
-        return render(self.request, self.template_name, {'lists': lists})
+        form = self.form()
+        return render(self.request, self.template_name, {'forms': form})
 
     def post(self, *args, **kwargs):
         board_id = kwargs.get('id')
         board = Board.objects.get(id=board_id)
         # create a form instance and populate it with data from the request:
-        lists = self.lists(self.request.POST)
+        form = self.form(self.request.POST)
         # check whether it's valid:
-        if lists.is_valid():
-            lists = lists.save(commit=False)
-            lists.board = board
-            lists.save()
+        if form.is_valid():
+            form = form.save(commit=False)
+            form.board = board
+            form.save()
             # redirect to a board views url:
             return redirect('board_view', board_id)
-        return render(self.request, self.template_name, {'lists': lists})
+        return render(self.request, self.template_name, {'form': forms})
 
 
 class AddCard(TemplateView):
@@ -145,7 +184,6 @@ class EditBoard(TemplateView):
         if not self.request.user.is_authenticated:
             return redirect('login')
         board_id = kwargs.get('id')
-        # import pdb; pdb.set_trace()
         board_object = get_object_or_404(Board, id=board_id)
         form = self.form(instance = board_object)
         return render(self.request, self.template_name, {'forms' : form})
@@ -198,7 +236,6 @@ class DeleteBoard(TemplateView):
         if not self.request.user.is_authenticated:
             return redirect('login')
         board_id = kwargs.get('id')
-        # import pdb; pdb.set_trace()
         board_object = get_object_or_404(Board, id=board_id)
         board_object.delete()
         return redirect(self.template_name)
@@ -246,6 +283,9 @@ class CardAjax(TemplateView):
         list_id = kwargs.get('id')
         context = {
             'cards': Card.objects.filter(boardList__id=list_id, archive=True),
+            'archived_boards' : Board.objects.filter(user=self.request.user, archive=False),
+            'archived_lists' : BoardList.objects.filter(archive=False),
+            'archived_cards' : Card.objects.filter(archive=False),
         }
         return render(self.request, self.template_name, context)
 
@@ -257,7 +297,6 @@ class SignupView(TemplateView):
 
     form = UserSignupForm
     template_name = 'app/signup.html'
-    error = False
 
     def get(self, *args, **kwargs):
         form = self.form()
@@ -277,7 +316,7 @@ class SignupView(TemplateView):
                 user.save()
                 login(self.request, user)
                 return redirect('home')
-        return render(self.request, self.template_name, {'form': form, 'error':self.error})
+        return render(self.request, self.template_name, {'form': form})
 
 
 class LoginView(TemplateView):
@@ -365,9 +404,14 @@ class ArchiveCard(TemplateView):
     def get(self, *args, **kwargs):
         card_id = kwargs.get('id')
         card = get_object_or_404(Card, id=card_id)
-        card.archive = False
-        card.save()
-        return redirect('board_view', card.boardList.board.id)
+        if card.archive == False:
+            card.archive = True
+            card.save()
+            return redirect('board_view', card.boardList.board.id)
+        elif card.archive == True:
+            card.archive = False
+            card.save()
+            return redirect('board_view', card.boardList.board.id)
 
 
 class ArchiveList(TemplateView):
@@ -378,11 +422,14 @@ class ArchiveList(TemplateView):
     def get(self, *args, **kwargs):
         list_id = kwargs.get('id')
         list_object = get_object_or_404(BoardList, id=list_id)
-        # import pdb; pdb.set_trace()
-        list_object.archive = False
-        list_object.save()
-        # import pdb; pdb.set_trace()
-        return redirect('board_view', list_object.board.id)
+        if list_object.archive == False:
+            list_object.archive = True
+            list_object.save()
+            return redirect('board_view', list_object.board.id)
+        elif list_object.archive == True:
+            list_object.archive = False
+            list_object.save()
+            return redirect('board_view', list_object.board.id)
 
 
 class ArchiveBoard(TemplateView):
@@ -393,11 +440,51 @@ class ArchiveBoard(TemplateView):
     def get(self, *args, **kwargs):
         board_id = kwargs.get('id')
         board_object = get_object_or_404(Board, id=board_id)
-        board_object.archive = False
-        # import pdb; pdb.set_trace()
-        board_object.save()
-        return redirect('home')
+        if board_object.archive == True:
+            board_object.archive = False
+            board_object.save()
+            return redirect('home')
+        elif board_object.archive == False:
+            board_object.archive = True
+            board_object.save()
+            return redirect('home')
 
+
+class UpdateCardAjax(TemplateView):
+    """
+    Update Cards through ajx
+    """
+
+    def get(self, *args, **kwargs):
+        to_id = kwargs.get('to_id')
+        get_id = kwargs.get('get_id')
+        card_object = Card.objects.get(id=get_id)
+        card_object.boardList_id = to_id
+        card_object.save()
+
+
+class AuthorizedMembers(TemplateView):
+    """
+    Let user select members 
+    """
+
+
+    authorized_email = AuthorizedEmail
+    template_name = 'app/dev.html'
+    def get(self, *args, **kwargs):
+        form = self.authorized_email()
+        return render(self.request, self.template_name,{ 'authorized_email' : form })
+
+    def post(self, *args, **kwargs):
+        # create a form instance and populate it with data from the request:
+        form = self.authorized_email(self.request.POST)
+        # import pdb; pdb.set_trace()
+        # check whether it's valid:
+        if form.is_valid():
+            form.save()
+            return render(self.request, self.template_name,{ 'authorized_email' : form })
+            # return redirect('board_view', board.id)
+        return render(self.request, self.template_name,{ 'authorized_email' : form })
 
 
 
@@ -482,41 +569,52 @@ class SampleInput(TemplateView):
 
     def get(self, *args, **kwargs):
         form = self.form()
-        return render(self.request, self.template_name, {'forms' : form})
+        return render(self.request, self.template_name, {'form' : form})
 
 
     def post(self, *args, **kwargs):
         if self.request.method == "POST":
             boardList = BoardList.objects.get(id='98')
+            import pdb; pdb.set_trace()
             form = self.form(self.request.POST)
             if(form.is_valid()):
                 form = form.save(commit=False)
                 form.boardList = boardList
                 form.save()
-            return HttpResponse(json.dumps({'forms' : form.title}))
-        return render_to_response('app/dev.html',{'form':self.form()}, RequestContext(self.request))
+        return render(self.request, self.template_name, {'form' : form})
 
 
-class OutputAjax(TemplateView):
+class AxajCardData(TemplateView):
     """
-    dev test
+    Send and return data of cards
     """
 
-    template_name = 'app/output_ajax.html'
+
+    form = CardForm
+    template_name = 'app/board_view.html'
+    template_name_post = 'board_view'
+
     def get(self, *args, **kwargs):
-        cards = Card.objects.filter(boardList=98)
-        return render(self.request, self.template_name, {'cards' : cards})
-    
-    # def post(self, *args, **kwargs):
+        form = self.form()
+        return render(self.request, self.template_name, {'forms' : form})
 
-class OutputAjaxs(TemplateView):
-    """
-    dev test
-    """
 
-    template_name = 'app/dev.html'
-    def get(self, *args, **kwargs):
-        list_id = kwargs.get('id')
-        cards = Card.objects.filter(id=list_id)
-        # import pdb; pdb.set_trace()
-        return render(self.request, self.template_name, {'cards' : cards})
+# ....
+def create_post(request):
+    posts = Post.objects.all()
+    response_data = {}
+
+    if request.POST.get('action') == 'post':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+
+        response_data['title'] = title
+        response_data['description'] = description
+      
+        Post.objects.create(
+            title = title,
+            description = description,
+            )
+        return JsonResponse(response_data)
+
+    return render(request, 'app/create_post.html', {'posts':posts})

@@ -11,65 +11,21 @@ $.each(lists, function(i, elem){
     })
 });
 
-$('#viewCardModal').on('show.bs.modal', function(event){
-    console.log("SULOD")
-    let remoteUrl = $(event.relatedTarget).data('remote')
-    let modal = $(this)
-    
-    $.ajax({
-        method: 'GET',
-        url: remoteUrl
-    }).done(function(response){
-        
-        modal.find('.modal-body').html(response)
-    })
-})
 
+// menu
+function openNav() {
+  setTimeout(function(){
+    document.getElementById("archive-title-board").style.display = "contents";
+    document.getElementById("archive-title-list").style.display = "contents";
+    document.getElementById("archive-title-card").style.display = "contents";
+  }, 300);
+  document.getElementById("mySidenav").style.width = "250px";
+  document.getElementById("mySidenav").style.zIndex = 2;
+}
 
-$(document).on('submit','#viewCardModal', function(event){
-event.preventDefault()
-let action = $('#edit-card-form').attr('action')
-let card_data = $('#edit-card-form').serialize()
-let csrf = $('input[name="csrfmiddlewaretoken"]').val();
-
-console.log(action,"url")
-
-$.ajax({
-    url: action,
-    method: 'POST',
-    data: card_data,
-    headers:{
-        'X-CSRFToken':csrf
-    }
-
-}).done(function(response){
-    this.clo
-})
-})
-
-// dev
-
-// $("form").submit(function(e){
-//     $.post('', $(this).serialize());
-//     e.preventDefault();
-// });
-
-function showUser(str) {
-    if (str=="") {
-      document.getElementById("txtHint").innerHTML="";
-      return;
-    }
-    if (window.XMLHttpRequest) {
-      // code for IE7+, Firefox, Chrome, Opera, Safari
-      xmlhttp=new XMLHttpRequest();
-    } else { // code for IE6, IE5
-      xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-    }
-    xmlhttp.onreadystatechange=function() {
-      if (this.readyState==4 && this.status==200) {
-        document.getElementById("txtHint").innerHTML=this.responseText;
-      }
-    }
-    xmlhttp.open("GET",+str,true);
-    xmlhttp.send();
-  }
+function closeNav() {
+  document.getElementById("mySidenav").style.width = "0";
+  document.getElementById("archive-title-board").style.display = "none";
+  document.getElementById("archive-title-list").style.display = "none";
+  document.getElementById("archive-title-card").style.display = "none";
+}

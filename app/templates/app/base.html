@@ -13,13 +13,119 @@
     <title>Trello</title>
 </head>
 <body>
+<div id="mySidenav" class="sidenav">
+    <div class="menu"><h5>Menu</h5></div>
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+<div class="accordion" id="accordionExample">
+    <!-- archived board -->
+    <div class="pos-f-t">
+      <nav class="navbar navbar-dark bg-dark nav-ab-title">
+        <span class="archive-title" id="archive-title-board">Archived Boards</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#archivedBoard" aria-controls="archivedBoard" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </nav>
+        <div class="collapse" id="archivedBoard">
+          <div class="bg-dark p-1">
+            <ul class="list-inline right-menu-li">
+                {% for board in archived_boards %}
+                <li>
+                    <div class="btn-group board-btn">
+                        <a class="btn btn-light nav-content" href="#">{{ board.title }}</a>
+                        <button type="button" class="btn btn-light fa fa-ellipsis-h drpdwn-menu-content" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'delete_board' board.id %}">Delete</a>
+                        <a class="dropdown-item" href="{% url 'archive_board' board.id %}">Send to board</a>
+                    </div>
+                    </div>
+                </li>
+                {% empty %}
+                <span class="empty-archived-board">No archived boards</span>
+                {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- archived list -->
+      <div class="pos-f-t">
+        <nav class="navbar navbar-dark bg-dark nav-ab-title">
+          <span class="archive-title nav-content" id="archive-title-list">Archived List</span>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#archivedList" aria-controls="archivedList" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </nav>
+        <div class="collapse" id="archivedList">
+          <div class="bg-dark p-1">
+            <ul class="list-inline right-menu-li">
+                {% for list in archived_lists %}
+                <li>
+                    <div class="btn-group board-btn">
+                        <a class="btn btn-light nav-content" href="">{{ list.title }}</a>
+                        <button type="button" class="btn btn-light fa fa-ellipsis-h drpdwn-menu-content" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'delete_list' list.id %}">Delete</a>
+                        <a class="dropdown-item" href="{% url 'archive_list' list.id %}">Send to board</a>
+                    </div>
+                    </div>
+                </li>
+                {% empty %}
+                <span class="empty-archived-board">No archived list</span>
+                {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- archived card -->
+        <nav class="navbar navbar-dark bg-dark nav-ab-title">
+            <span class="archive-title" id="archive-title-card">Archived Card</span>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#archivedCard" aria-controls="archivedCard" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+        </nav>
 
+      <div class="pos-f-t">
+        <div class="collapse" id="archivedCard">
+          <div class="bg-dark p-1">
+            <ul class="list-inline right-menu-li">
+                {% for card in archived_cards %}
+                <li>
+                    <div class="btn-group board-btn">
+                        <a class="btn btn-light nav-content" href="">{{card.title}}</a>
+                        <button type="button" class="btn btn-light fa fa-ellipsis-h drpdwn-menu-content" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'delete_card' card.id %}">Delete</a>
+                        <a class="dropdown-item" href="{% url 'archive_card' card.id %}">Send to board</a>
+                    </div>
+                    </div>
+                </li>
+                {% empty %}
+                <span class="empty-archived-board">No archived card</span>
+                {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      </div>
+</div>
+<ul class="nav justify-content-end list-inline left-menu-li menu-btn">
+    <li class="nav-item">
+        <button type="button" class="text-break btn btn-light" onclick="openNav()"><i class="fa fa-th-list" aria-hidden="true"></i> Show menu</button>
+    </li>
+  </ul>
 {% block content %}
 {% endblock %}
 
     <!-- js -->
     <script src="{% static 'dist/js/popper.min.js' %}"></script>
     <script src="{% static 'dist/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'dist/js/jquery-ui.js' %}"></script>
     <script src="{% static 'dist/js/app/script.js' %}"></script>
+    <script src="{% static 'dist/js/app/test.js' %}"></script>
 </body>
 </html>

@@ -1,4 +1,8 @@
 from django.urls import path
+# ...
+from . import views
+# ...
+from django.contrib import admin
 from app.views import (
     Boards, 
     AddBoard, 
@@ -14,11 +18,14 @@ from app.views import (
     DeleteBoard,
     ArchiveBoard,
     EditBoard,
+    UpdateCardAjax,
+    AuthorizedMembers,
+    # ArchivedBoards,
+
+    AxajCardData,
 
 
     SampleInput,
-    OutputAjax,
-    OutputAjaxs,
 )
 
 urlpatterns = [
@@ -60,10 +67,16 @@ urlpatterns = [
 
     #ajax urls
     path('list/<int:id>/cards/', CardAjax.as_view(), name='card_list'),
+    # ajax data cards
+    path('board', AxajCardData.as_view(), name='ajax_data_card'),
+    # update ajax card
+    path('board/<int:id>/to/<int:to_id>/get/<int:get_id>', UpdateCardAjax.as_view(), name='drag_card'),
+
 
     # for dev only
-    path('board/dev/', SampleInput.as_view(), name='dev'),
-    # ajax output
-    path('board/output/ajax/', OutputAjax.as_view(), name='output_ajax'),
-    path('board/output/ajax/<int:id>', OutputAjaxs.as_view(), name='output_ajax'),
+    path('board/dev/', AuthorizedMembers.as_view(), name='dev'),
+
+    # ...
+    path('post/new/', views.create_post, name='create'),
+    # ...
 ]

@@ -1,5 +1,78 @@
+{% extends 'app/base.html' %}
+
 {% block content %}
-    {% for card in cards %}
-        {{ card.title }}{{ card.errors }}<br>
-    {% endfor %}
+
+<!-- 
+<h1>test</h1>
+<div>
+    <form class="jan" action="" method="post">{% csrf_token %}
+        {{ form.title }}
+        <a onclick="AjaxFormSubmit()" href="#">Submit</a>
+    </form>
+</div> -->
+
+<!-- for authorized email -->
+<h1>test</h1>
+<div>
+<form method="post" novalidate>
+  {% csrf_token %}
+  {{ authorized_email }}
+  <input name="next" type="submit" value="Submit">
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- <ul class="tests" style="border: 2px solid #000; margin: 15px; height: 300px;" id="ul-01">
+  <li id="li-01">
+    <ul class="test" style="border: 2px solid #000; margin: 15px;">
+      <li id="a">A111111111111</li>
+      <li id="b">B11111111111111111</li>
+      <li id="c">C1111111111111</li>
+    </ul>
+  </li>
+</ul>
+<ul class="tests" style="border: 2px solid #000; margin: 15px; height: 300px;" id="ul-02">
+  <li id="li-02">
+    <ul class="test" style="border: 2px solid #000; margin: 15px;">
+      <li id="1">111111111111111111111111111</li>
+      <li id="2">211111111111111</li>
+      <li id="3">31111111111111111</li>
+    </ul>
+  </li>
+</ul>
+<ul class="tests" style="border: 2px solid #000; margin: 15px; height: 300px;" id="ul-03">
+  <li id="li-03">
+    <ul class="test" style="border: 2px solid #000; margin: 15px;">
+      <li id="a">A111111111111</li>
+      <li id="b">B11111111111111111</li>
+      <li id="c">C1111111111111</li>
+    </ul>
+  </li>
+</ul>
+<ul class="tests" style="border: 2px solid #000; margin: 15px; height: 300px;" id="ul-04">
+  <li id="li-04">
+    <ul class="test" style="border: 2px solid #000; margin: 15px;">
+      <li id="1">111111111111111111111111111</li>
+      <li id="2">211111111111111</li>
+      <li id="3">31111111111111111</li>
+    </ul>
+  </li>
+</ul> -->
+
 {% endblock %}
