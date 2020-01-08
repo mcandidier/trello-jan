@@ -198,3 +198,38 @@ a.nav-content, .empty-archived-board{
 .auth-email-btn{
   margin: 5px;
 }
+.card-spacer{
+  font-size: 1px;
+}
+/* comment area */
+span.comment-user {
+  font-style: italic;
+  position: relative;
+}
+.show-comment{
+  padding: 5px;
+  border: 1px solid #e4e4e4;
+  border-radius: 4px;
+  width: fit-content;
+}
+.comment-section{
+  margin-bottom: 10px;
+}
+.edit-comment, .delete-comment{
+  font-size: 10px;
+  font-style: italic;
+  position: relative;
+  bottom: 5px;
+  left: 3px;
+}
+.update-card-discription{
+  font-size: 10px;
+  font-style: italic;
+  position: relative;
+  bottom: 5px;
+  left: 3px;
+}
+/* modal area */
+div#viewCardModal {
+  cursor: default;
+}

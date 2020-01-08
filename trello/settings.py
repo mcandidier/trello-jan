@@ -119,6 +119,12 @@ USE_L10N = True
 
 USE_TZ = True
 
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'jv.trello@gmail.com'
+DEFAULT_FROM_EMAIL = 'Trello Confirmation <jv.trello@gmail.com>'
+EMAIL_HOST_PASSWORD = '@jv_trello1234'
+EMAIL_PORT = 587
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
@@ -128,3 +134,4 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+

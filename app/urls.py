@@ -1,7 +1,4 @@
 from django.urls import path
-# ...
-from . import views
-# ...
 from django.contrib import admin
 from app.views import (
     Boards, 
@@ -20,12 +17,14 @@ from app.views import (
     EditBoard,
     UpdateCardAjax,
     AuthorizedMembers,
-    # ArchivedBoards,
+    ConfirmationPage,
+    AddComment,
+    DeleteComment,
+    LeaveBoard,
+    EditComment,
+    UpdateDescription,
 
     AxajCardData,
-
-
-    SampleInput,
 )
 
 urlpatterns = [
@@ -64,6 +63,18 @@ urlpatterns = [
     path('board/<int:board_id>/list/edit/<int:id>', EditList.as_view(), name='list_edit'),
     # display card modal
     path('board/show/cards/<int:id>', ShowCards.as_view(), name='show_cards'),
+    # add comment
+    path('show/cards/<int:card_id>', AddComment.as_view(), name='add_comment'),
+    # edit comment
+    path('board/edit/comment/<int:comment_id>', EditComment.as_view(), name='edit_comment'),
+    # update card description
+    path('board/update/card/description/<int:card_id>', UpdateDescription.as_view(), name='update_card_description'),
+    # delete comment
+    path('board/delete/comment/<int:comment_id>', DeleteComment.as_view(), name='delete_comment'),
+    # leave board
+    path('leave/board/<int:board_id>', LeaveBoard.as_view(), name='leave_board'),
+    # ConfirmationPage
+    path('board/<int:owner_id>/confirmation/', ConfirmationPage.as_view(), name='confirm_invitation'),
 
     #ajax urls
     path('list/<int:id>/cards/', CardAjax.as_view(), name='card_list'),
@@ -75,8 +86,4 @@ urlpatterns = [
 
     # for dev only
     path('board/dev/', AuthorizedMembers.as_view(), name='dev'),
-
-    # ...
-    path('post/new/', views.create_post, name='create'),
-    # ...
 ]

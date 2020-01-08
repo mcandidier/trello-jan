@@ -31,22 +31,37 @@ class BoardList(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
  
     def __str__(self):
-        return "({}) - {} - {}".format(self.orderby, self.id, self.title)
+        return "{} - {}".format(self.id, self.title)
 
 class Card(models.Model):
-    """ 
+    """ jvallno23@gmail.com
     Creating card model
     """
 
 
     title = models.CharField(max_length=50)
+    description = models.TextField(max_length=None, blank=True)
     date_created = models.DateField(default=timezone.now)
     archive = models.BooleanField(default=True)
+    date_created = models.DateTimeField(default=timezone.now)
     boardList = models.ForeignKey(BoardList, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "List id = ({}) - ({}) - {}".format(self.boardList.id, self.id, self.title)
+        return "({}) - {}".format(self.id, self.title)
 
+class Comment(models.Model):
+    """
+    Let the user put comments on cards
+    """
+
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.CharField(max_length=50)
+    date_created = models.DateTimeField(default=timezone.now)
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{} - {}".format(self.id, self.comment)
 
 class AuthorizedMember(models.Model):
     """
@@ -58,16 +73,9 @@ class AuthorizedMember(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
     date_created = models.DateField(default=timezone.now)
     authorized_email = models.EmailField(max_length=50)
+    activation = models.BooleanField(default=False)
+    disable = models.BooleanField(default=False)
+    date_created = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.authorized_email
-
-
-# ....
-class Post(models.Model):
-    title = models.CharField(max_length=50)
-    description = models.TextField()
-
-    def __str__(self):
-        return self.title
-# ....

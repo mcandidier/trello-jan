@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Board, Card, BoardList, AuthorizedMember
+from .models import Board, Card, BoardList, AuthorizedMember, Comment
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import validate_email
 
@@ -30,9 +30,24 @@ class CardForm(forms.ModelForm):
     Card Form template
     """
 
+    title = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Card Title', 'id':'card-title'}))
+    description = forms.CharField(widget=forms.Textarea(attrs={'class':'form-control text-monospace text-break text-left border border-primary rounded-lg p-2 m-0','placeholder':'Add more detailed description...', 'id':'card-description'}))
+    
     class Meta:
         model = Card
-        fields = ('title',)
+        fields = ('title', 'description')
+
+
+class CommentForm(forms.ModelForm):
+    """
+    Comment Form template
+    """
+
+    comment = forms.CharField(widget=forms.TextInput(attrs={'class':'form-control mt-5','placeholder':'Comment', 'id':'addComment'}))
+
+    class Meta:
+        model = Comment
+        fields = ('comment',)
 
 
 class UserForm(forms.Form):
@@ -83,15 +98,6 @@ class UserSignupForm(forms.ModelForm):
 
         # A user was found with this as a username, raise an error.
         raise forms.ValidationError('This email address is already in use!')
-
-class PostForm(forms.ModelForm):
-    """
-    List Form template
-    """
-
-    class Meta:
-        model = BoardList
-        fields = ('title',)
 
 
 class AuthorizedEmail(forms.ModelForm):

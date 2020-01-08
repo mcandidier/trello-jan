@@ -4,7 +4,8 @@
 
 <div class="list-group">
   <ul class="list-inline">
-    <li class="list-inline-item"><h2>{{ board.title }}</h2></li>
+    <li class="list-inline-item"><a href="{% url 'home' %}"><h2>Home</h2></a></li>
+    <li class="list-inline-item"><h5>{{ board.title }}</h5></li>
     <li class="list-inline-item">
       <form class="form-inline" method="post" novalidate>
         {% csrf_token %}
@@ -12,10 +13,33 @@
         <button class="btn btn-light my-2 my-sm-0 auth-email-btn" type="submit" >Submit</button>
       </form>
     </li>
+    <li class="list-inline-item">
+      <div class="dropdown">
+        <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Members
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" href="#">{{board.user}} - (Admin)</a>
+          {% for member in members %}
+          <a class="dropdown-item" href="#">{{member.authorized_email}}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </li>
+    <li class="list-inline-item">
+      {% for i in members_id%}
+      {% if user_member %}
+      <form method="POST" class="" id="leaveBoard" action="{% url 'leave_board' i.id %}" novalidate>
+        {% csrf_token %}
+        <input type="submit" value="Leave Board" class="save btn btn-light">
+      </form>
+      {% endif %}
+    {% endfor %}
+    </li>
   </ul>
-  
+
   <ul class="row list-sort sortable-list">
-  {% for list in list_object %}
+  {% for list in lists %}
 
       <li class="col-md-2 list-frame drag-list" id="{{list.id}}" data-id="{{list.id}}">
         <div class="btn-group btn-list-title">
@@ -35,7 +59,9 @@
         <!-- Display cards using ajax -->
         <!-- <div class="list_objects list-body" data-id="{{ list.id }}"></div> -->
         <ul class="sortable-card" id="{{list.id}}">
-          {% for card in list.card_set.all %}
+          <li class="card-spacer">&nbsp;</li>
+          {% for card in list.card_set.all|dictsort:"id" %}
+            {% if card.archive == True %}
               <li id="{{ card.id }}">
                   <div class="btn-group btn-card-title">
                       <!-- Display List -->
@@ -51,14 +77,15 @@
                       </div>
                   </div>
               </li>
-            {% endfor %}
+            {% endif %}
+          {% endfor %}
           </ul>
         <a class="btn btn btn-light add-button" role="button" href="{% url 'card_new' list.id %}" class="top-menu"><i class="fa fa-plus" aria-hidden="true"></i> Add a card</a>
       </li>
 
       {% endfor %}
-      <div class="col-md-2 add-btn-frame">
-        <a class="btn btn btn-light add-list-button" role="button" href="{% url 'list_new' board.id %}" class="top-menu"><i class="fa fa-plus" aria-hidden="true"></i> Add a list</a>
+      <div class="col-md-2 add-btn-frame add-a-list" id="add-a-list">
+        <a class="btn btn btn-light add-list-button add-a-list" role="button" href="{% url 'list_new' board.id %}" class="top-menu"><i class="fa fa-plus" aria-hidden="true"></i> Add a list</a>
       </div>
       
     </ul>

@@ -1,21 +1,25 @@
 import json
+from django.conf import settings
+from django.core.mail import send_mail
 from django.template import RequestContext
-from django.http import JsonResponse
-from django.http import HttpResponse
-from django.shortcuts import redirect
-from .models import Board, Card, BoardList, AuthorizedMember, Post
+from django.http import JsonResponse, HttpResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
-from .forms import BoardForm, ListForm, CardForm, UserForm, UserSignupForm, AuthorizedEmail
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
+from django.core.mail import EmailMultiAlternatives
+
+from .models import Board, Card, BoardList, AuthorizedMember, Comment
+from .forms import BoardForm, ListForm, CardForm, UserForm, UserSignupForm, AuthorizedEmail, CommentForm
+
+from .mixin import MembersMixIn
+
 
 class Boards(TemplateView):
-
     """
     View the boards of the user
     """
@@ -38,6 +42,7 @@ class AddBoard(TemplateView):
     """
     Let the user add new board
     """
+
     form = BoardForm
     template_name = 'app/create_board.html'
     def get(self, *args, **kwargs):
@@ -59,16 +64,7 @@ class AddBoard(TemplateView):
         return render(self.request, self.template_name, {'forms': form})
 
 
-
-class MembersMixIn:
-
-    def dispatch(self, request, *args, **kwargs):
-        if AuthorizedMember.objects.filter(user=request.user, board=kwargs.get('id')):
-            return super().dispatch(request, *args, **kwargs)
-        else:
-            raise PermissionDenied
-
-class BoardView(MembersMixIn,TemplateView):
+class BoardView(LoginRequiredMixin,MembersMixIn,TemplateView):
     """
     Redirect the user to the selected board
     """
@@ -77,24 +73,29 @@ class BoardView(MembersMixIn,TemplateView):
     template_name = 'app/board_view.html'
     template_name_post = 'board_view'
     error = False
+    login_url = '/login/'
     def get(self, *args, **kwargs):
         if not self.request.user.is_authenticated:
             return redirect('login')
-
-        # if self.request.user in Board.objects.get(pk=kwargs['id']).members
-        
         # user board id
         board_id = kwargs.get('id')
+        list_object = BoardList.objects.filter(board=board_id)
+        list_id = list_object.values_list('id', flat = False)
         # authorized email to access other boards
         authorized_email = self.authorized_email()
+        board_list = BoardList.objects.filter(board=board_id, archive=True)
         context = {
             'board' : get_object_or_404(Board, id=board_id),
-            'list_object' : BoardList.objects.filter(board=board_id, archive=True),
+            'lists' : BoardList.objects.filter(board=board_id, archive=True).order_by('id'),
+            'cards' : Card.objects.filter(boardList__in=list_id),
             'boards': Board.objects.filter(user=self.request.user, archive=True),
             'authorized_email' : authorized_email,
             'archived_boards' : Board.objects.filter(user=self.request.user, archive=False),
             'archived_lists' : BoardList.objects.filter(archive=False),
             'archived_cards' : Card.objects.filter(archive=False),
+            'members' : AuthorizedMember.objects.filter(board=board_id),
+            'members_id' : AuthorizedMember.objects.filter(authorized_email=self.request.user.email),
+            'user_member' : AuthorizedMember.objects.filter(authorized_email=self.request.user.email, board=board_id ).exists(),
         }
         return render(self.request, self.template_name, context)
 
@@ -109,8 +110,48 @@ class BoardView(MembersMixIn,TemplateView):
             authorized_email_form.user = self.request.user
             authorized_email_form.board = board_object
             authorized_email_form.save()
+            invited_user_email = authorized_email_form.authorized_email
+            send_mail(
+                'Subject here',
+                'http://127.0.0.1:8000/board/'+str(board_object.id)+'/confirmation/',
+                settings.DEFAULT_FROM_EMAIL,
+                [invited_user_email, settings.DEFAULT_FROM_EMAIL],
+                fail_silently=False,)
             return redirect(self.template_name_post, board_id)
         return redirect(self.template_name_post, board_id)
+
+
+class LeaveBoard(TemplateView):
+    """
+    Let the user leave the board
+    """
+    
+    def get(self, *args, **kwargs):
+        board_id = kwargs.get('board_id')
+        remove_member = AuthorizedMember.objects.filter(id=board_id).delete()
+        return redirect('home')
+
+
+class ConfirmationPage(TemplateView):
+    """
+    The user will redidect to the confirmation page when clicking the link from their sent email
+    """
+
+    template_name = 'app/confirmation.html'
+    template_board_url = 'board_view'
+    def get(self, *args, **kwargs):
+        board_id = kwargs.get('owner_id')
+        form = get_object_or_404(AuthorizedMember, board = board_id, authorized_email=self.request.user.email, activation = False)
+        return render(self.request, self.template_name, {} )
+
+    def post(self, *args, **kwargs):
+        board_id = kwargs.get('owner_id')
+        form = get_object_or_404(AuthorizedMember, board = board_id, authorized_email=self.request.user.email, activation = False)
+        if form.activation is False:
+            form.activation = True
+            form.save()
+            messages.info(self.request, 'You have successfuly confirm the invitation!')
+        return redirect(self.template_board_url, board_id)
 
 
 class AddList(TemplateView):
@@ -341,7 +382,7 @@ class LoginView(TemplateView):
             if user is not None:
                 login(self.request, user)
                 return redirect('home')
-            self.error = True 
+            self.error = True
         return render(self.request, self.template_name,{'form':form, 'error':self.error})
 
 
@@ -386,14 +427,94 @@ class ShowCards(TemplateView):
     """
     Show Cards
     """
-    
+    form = CommentForm
     template_name = 'app/show_cards.html'
     def get(self, *args, **kwargs):
-        # if not self.request.user.is_authenticated:
-        #     return redirect('login')
+        if not self.request.user.is_authenticated:
+            return redirect('login')
         card_id = kwargs.get('id')
+        comment_form = self.form()
+        view_comment = Comment.objects.filter(card_id=card_id)
+        card_object = Card.objects.get(id=card_id)
         cards = Card.objects.filter(id=card_id)
-        return render(self.request, self.template_name, {'cards' : cards})
+        return render(self.request, self.template_name, { 'cards' : cards, 'comment_form' : comment_form, 'view_comment' : view_comment, 'card_objects': card_object})
+
+
+class AddComment(TemplateView):
+    """
+    Let the users add comments on cards
+    """
+    
+    form = CommentForm
+    template_name = 'app/show_cards.html'
+    def post(self, *args, **kwargs):
+        card_id = kwargs.get('card_id')
+        card_object = Card.objects.get(id=card_id)
+        comment_data = self.request.POST['comment']
+        if comment_data == '':
+            return render(self.request, self.template_name, {})
+        add_comment = Comment.objects.create(user = self.request.user, comment = comment_data, card = card_object)
+
+
+class UpdateDescription(TemplateView):
+    """
+    Let the user update the card descrition
+    """
+
+    form = CardForm
+    template_name = 'app/update_card_descripion.html'
+    def get(self, *args, **kwargs):
+        card_id = kwargs.get('card_id')
+        card_object = get_object_or_404(Card, id=card_id)
+        form = self.form(instance = card_object)
+        return render(self.request, self.template_name, {'forms' : form})
+
+    def post(self, *args, **kwargs):
+        card_id = kwargs.get('card_id')
+        card_object = get_object_or_404(Card, id=card_id)
+        form = self.form(self.request.POST, instance = card_object)
+        if form.is_valid():
+            form.save()
+            return redirect('board_view', card_object.boardList.board.id)
+        else:
+            return render(self.request, self.template_name, {'forms' : form})
+
+
+class EditComment(TemplateView):
+    """
+    Able to edit the comment
+    """
+    form = CommentForm
+    template_name = 'app/edit_comment.html'
+    def get(self, *args, **kwargs):
+        comment_id = kwargs.get('comment_id')
+        comment_object = get_object_or_404(Comment, id=comment_id)
+        form = self.form(instance = comment_object)
+        return render(self.request, self.template_name, {'forms' : form})
+    
+    def post(self, *args, **kwargs):
+        comment_id = kwargs.get('comment_id')
+        comment_object = get_object_or_404(Comment, id=comment_id)
+        form = self.form(self.request.POST, instance = comment_object)
+        if form.is_valid():
+            form.save()
+            return redirect('board_view', comment_object.card.boardList.board.id)
+        else:
+            return render(self.request, self.template_name, {'forms' : form})
+
+
+class DeleteComment(TemplateView):
+    """
+    Let the user delete the comment
+    """
+
+    def get(self, *args, **kwargs):
+        comment_id = kwargs.get('comment_id')
+        comment = Comment.objects.get(id=comment_id)
+        board_id = comment.card.boardList.board.id
+        comment.delete()
+        return redirect('board_view', board_id)
+
 
 
 class ArchiveCard(TemplateView):
@@ -478,7 +599,6 @@ class AuthorizedMembers(TemplateView):
     def post(self, *args, **kwargs):
         # create a form instance and populate it with data from the request:
         form = self.authorized_email(self.request.POST)
-        # import pdb; pdb.set_trace()
         # check whether it's valid:
         if form.is_valid():
             form.save()
@@ -487,104 +607,8 @@ class AuthorizedMembers(TemplateView):
         return render(self.request, self.template_name,{ 'authorized_email' : form })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class SampleInput(TemplateView):
-    """
-    for dev only :D
-    """
-
-    form = CardForm
-    template_name = 'app/dev.html'
-
-    def get(self, *args, **kwargs):
-        form = self.form()
-        return render(self.request, self.template_name, {'form' : form})
-
-
-    def post(self, *args, **kwargs):
-        if self.request.method == "POST":
-            boardList = BoardList.objects.get(id='98')
-            import pdb; pdb.set_trace()
-            form = self.form(self.request.POST)
-            if(form.is_valid()):
-                form = form.save(commit=False)
-                form.boardList = boardList
-                form.save()
-        return render(self.request, self.template_name, {'form' : form})
-
-
 class AxajCardData(TemplateView):
+    
     """
     Send and return data of cards
     """
@@ -597,24 +621,3 @@ class AxajCardData(TemplateView):
     def get(self, *args, **kwargs):
         form = self.form()
         return render(self.request, self.template_name, {'forms' : form})
-
-
-# ....
-def create_post(request):
-    posts = Post.objects.all()
-    response_data = {}
-
-    if request.POST.get('action') == 'post':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-
-        response_data['title'] = title
-        response_data['description'] = description
-      
-        Post.objects.create(
-            title = title,
-            description = description,
-            )
-        return JsonResponse(response_data)
-
-    return render(request, 'app/create_post.html', {'posts':posts})

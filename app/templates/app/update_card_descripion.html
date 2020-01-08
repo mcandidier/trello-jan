@@ -1,0 +1,10 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+    <h2>Edit card description</h2>
+    <form method="POST" class="" novalidate>{% csrf_token %}
+            {{ forms.title }}{{form.errors}}
+            {{ forms.description }}{{form.errors}}
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>
+{% endblock %}
