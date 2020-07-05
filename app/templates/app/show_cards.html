@@ -1,0 +1,34 @@
+{% for card in cards %}
+<h6>{{ card.title }}</h6>
+<h6 class="text-left mb-3">Description</h6>
+
+    <div class="col-md-12 p-0 text-left comment-section">
+        {% if card.description %}
+            <p class="text-monospace text-break text-left border border-primary rounded-lg p-2 m-0">{{card.description}}</p>
+        {% else %}
+            <p class="text-monospace text-break text-left border border-primary rounded-lg p-2 m-0">Add more detailed description...</p>
+        {% endif %}
+        <a href="{% url 'update_card_description' card.id %}" class="update-card-discription">Update</a>
+    </div>
+
+    </form>
+    {% for comments in card.comment_set.all|dictsort:"id" %}
+
+    <div class="col-md-12 p-0 text-left comment-section">
+        <span class="comment-user"><b>- {{comments.user}}:</b></span>
+        <p class="show-comment m-0">{{comments.comment}}</p>
+
+        {% if comments.user.pk is user.pk %}
+            <a href="{% url 'edit_comment' comments.id %}" class="edit-comment">Edit</a href="#">
+            <a href="{% url 'delete_comment' comments.id %}" id="deletecomment" class="delete-comment">Delete</a>
+        {% endif %}
+        
+    </div>
+
+    {% endfor %}
+    <form method="POST" class="" id="sendComment" action="{% url 'add_comment' card.id %}" novalidate>
+        {% csrf_token %}
+        {{comment_form.comment}}
+        <input type="submit" value="Submit" class="save btn btn-light mt-2">
+    </form>
+{% endfor %}

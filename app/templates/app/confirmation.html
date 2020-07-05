@@ -1,0 +1,19 @@
+{% extends 'app/alternative_base.html' %}
+
+{% block content %}
+
+<form method="post" novalidate>
+    {% csrf_token %}
+    {% for field in forms %}
+    <input type="hidden" value="{{ field.activation }}">
+    {% endfor %}
+    <input class="btn btn-light" name="next" type="submit" value="Confirm">
+</form>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

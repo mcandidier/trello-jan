@@ -1,0 +1,29 @@
+{% extends 'app/alternative_base.html' %}
+{% block content %}
+<section>
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col-md-6 offset-md-3 login-box">
+                <h2 class="text-center">Login User</h2>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{form.username}}{{form.username.errors}}
+                    </div>
+                    <div class="form-group">
+                        {{form.password}}{{form.password.errors}}
+                    </div>
+                    <div class="mb-2">
+                        <a href="{% url 'signup' %}">Sign up</a>
+                    </div>
+                    {% if error %}
+                    <p>Invalid Username and Password</p>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

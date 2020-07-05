@@ -1,0 +1,23 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+    <h2>Edit Cards</h2>
+        {% for card in cards %}
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" onclick="showUser(`{{card.id}}`)">{{card.title}}</button>
+        {% endfor %}
+
+    
+<form>
+
+    <select name="users" onclick="showUser(this.value)">
+        <option value="">Select a person:</option>
+        <option value="61" type="button" >Peter Griffin</option>
+        <option value="52" type="button">Lois Griffin</option>
+        <option value="98" type="button">Joseph Swanson</option>
+        <option value="30" type="button">Glenn Quagmire</option>
+    </select>
+</form>
+<br>
+<div id="txtHint"><b>Person info will be listed here.</b></div>
+
+{% endblock %}

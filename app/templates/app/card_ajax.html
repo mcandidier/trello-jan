@@ -1,0 +1,53 @@
+
+<ul class="sortable-card drag-list" id="1">
+<li class="card-spacer">&nbsp;</li>
+{% for card in cards %}
+    <li id="{{ card.id }}" class="{{list.id}}">
+        <div class="btn-group btn-card-title">
+            <!-- Display List -->
+            <div class="card-title">
+                <a href="#" class="text-break btn btn-light content-btn-card-list drag-card" data-id="{{ card.id }}" id="card{{ card.id }}" data-toggle="modal" data-target="#viewCardModal" data-remote="{% url 'show_cards' card.id %}">{{card.title}}</a>
+            </div>
+            <button type="button" class="btn btn-light fa fa-ellipsis-h btn-card-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            </button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'delete_card' card.id %}">Delete</a>
+                <a class="dropdown-item" href="{% url 'archive_card' card.id %}">Archive</a>
+                <a class="dropdown-item" href="{% url 'card_edit' card.id %}">Edit</a>
+            </div>
+        </div>
+    </li>
+{% endfor %}
+</ul>
+<script>
+// dev sample
+$('.sortable-card').sortable({
+  connectWith: '.sortable-card',
+  update: function(event, ui) {
+    let dragCardId = ui.item.attr("id");
+    let card = $('.drag-card').data('id');
+    let list = $('.drag-list').data('id');
+    let listId = this.id;
+    let order = $(this).sortable('toArray');
+    // let cardId = order;
+    let cardId = order.join(',');
+    // console.log(list);
+    // console.log(card);
+
+    // console.log({
+    //   id: listId,
+    //   cardId: cardId
+    // });
+    $.ajax({
+        url: '',
+        method: 'GET',
+        data: this.cardId,
+        success: function() {
+            console.log(list);
+            console.log({dragCardId});
+
+        }
+    })
+  }
+});
+</script>

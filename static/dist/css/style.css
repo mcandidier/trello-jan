@@ -1,0 +1,235 @@
+h1, h2, h3, h4, h5, h6{
+  margin: 0;
+}
+ul{
+    list-style-type: none;
+    padding-inline-start: 0;
+}
+ul.list-inline li, .right-menu-li {
+    margin: 5px 0 5px 0;
+}
+.left-menu-li button, .left-menu-li a, .right-menu-li a{
+    width: 100%;
+    text-align: left;
+    background-color: #fff0;
+    border: #fff0;
+}
+.fade.in {
+    opacity: 1;
+  }
+  .modal.in .modal-dialog {
+    -webkit-transform: translate(0, 0);
+    -o-transform: translate(0, 0);
+    transform: translate(0, 0);
+  }
+  .modal-backdrop .fade .in {
+    opacity: 0.5 !important;
+  }
+  .modal-backdrop.fade {
+    opacity: 0.5 !important;
+  }
+  .login-box{
+    border: 1px solid #d4d4d4c7;
+    border-radius: 4px;
+    padding: 20px;
+  }
+  .board-btn{
+    width: 100%;
+  }
+.horizontal-scroll {
+    overflow: auto;
+    white-space: nowrap;
+    position: absolute;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    top: 0;
+}
+div#content {
+  height: 100%;
+}
+.ul-content{
+  width: 100%;
+}
+.list-frame{
+  padding: 0;
+  margin: 8px;
+  background-color: #d0d0d01f;
+  border-radius: 5px;
+}
+.btn-list-title, .list-title, .content-btn-title-list, .btn-card-title, .card-title, .content-btn-card-list, .add-button, .add-list-button{
+  width: 100%;
+}
+.content-btn-title-list, .content-btn-card-list{
+  text-align: left;
+}
+.content-btn-card-list{
+  background-color: #fff;
+  border-radius: 5px 0 0 5px;
+  border-bottom: 1px solid #cccbcb;
+}
+.btn-card-dropdown{
+  background-color: #fff;
+  border-radius: 0 5px 5px 0 !important;
+  border-bottom: 1px solid #cccbcb;
+}
+.content-btn-title-list {
+  border-radius: 5px 0 0 0;
+}
+.content-btn-dropdown{
+  border-radius: 0 5px 0 0;
+}
+.list-body ul, .card-title, ul.sortable-card{
+  margin: 0;
+  padding: 0;
+}
+.add-button{
+  text-align: left;
+  border-radius: 0 0 5px 5px;
+  position: relative;
+  bottom: 0;
+  color: #9e9d9d;
+}
+.col-md-2.list-frame{
+  height: 100%;
+}
+.add-list-button{
+  text-align: left;
+  position: relative;
+  bottom: 0;
+  color: #9e9d9d;
+}
+.add-btn-frame{
+  margin: 8px;
+  padding: 0
+}
+.btn-group.btn-card-title {
+  padding: 5px;
+}
+.list-group{
+  padding-right: 15px;
+  padding-left: 15px;
+}
+.fa-ellipsis-h {
+  color: #a9a8a8;
+}
+/* menu bar */
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  background-color: #f8f9fa;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+}
+
+.sidenav a {
+  padding: 8px 8px 8px 32px;
+  text-decoration: none;
+  color: #000;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidenav a:hover {
+  color: #585757;
+}
+
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  right: 10px;
+}
+.closebtn{
+  font-size: 25px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+.menu {
+  position: absolute;
+  top: 16px;
+  left: 107px;
+  right: auto;
+}
+.archive-title{
+  color: #fff;
+}
+.empty-archived-board{
+  padding: 15px;
+}
+a.nav-content, .empty-archived-board{
+  color: #fff;
+}
+.drpdwn-menu-content{
+  background-color: #343a40;
+  border-color: #343a40;
+}
+.nav-ab-title{
+  border-top: 1px solid #f8f9fa7a;
+}
+.archive-title{
+  display: none;
+}
+.menu-btn{
+  z-index: 1;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+/* menu bar */
+
+/* drag and drop */
+.list-wrapper{
+  width: 272px;
+  margin: 0 4px;
+  height: 100%;
+  box-sizing: border-box;
+  display: inline-block;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.auth-email-btn{
+  margin: 5px;
+}
+.card-spacer{
+  font-size: 1px;
+}
+/* comment area */
+span.comment-user {
+  font-style: italic;
+  position: relative;
+}
+.show-comment{
+  padding: 5px;
+  border: 1px solid #e4e4e4;
+  border-radius: 4px;
+  width: fit-content;
+}
+.comment-section{
+  margin-bottom: 10px;
+}
+.edit-comment, .delete-comment{
+  font-size: 10px;
+  font-style: italic;
+  position: relative;
+  bottom: 5px;
+  left: 3px;
+}
+.update-card-discription{
+  font-size: 10px;
+  font-style: italic;
+  position: relative;
+  bottom: 5px;
+  left: 3px;
+}
+/* modal area */
+div#viewCardModal {
+  cursor: default;
+}
